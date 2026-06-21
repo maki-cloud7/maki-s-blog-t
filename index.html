@@ -44,27 +44,8 @@
           <h2 class="section-title gsap-fade-up" style="margin-bottom: 0;"><span>Chapter 1.</span> 记忆的碎片 (近期文章)</h2>
           <a href="/archive.html" class="btn gsap-fade-up" style="padding: 10px 25px; border-radius: 30px;">查看所有记忆 →</a>
         </div>
-        <div class="article-list">
-          <article class="card article-card gsap-fade-up">
-            <div class="card-img">
-              <img src="/article1.jpg" alt="文章插图" onerror="this.src='https://picsum.photos/800/400?school'">
-            </div>
-            <div class="card-content">
-              <h3><a href="/article2.html" style="color: inherit; text-decoration: none;">关于Vite和GSAP的魔法尝试</a></h3>
-              <p>在这个炎热的下午，我终于学会了如何让网页充满动感，就像那年夏天我们在操场上的奔跑...</p>
-              <span class="date">2026-06-21</span>
-            </div>
-          </article>
-          <article class="card article-card gsap-fade-up">
-            <div class="card-img">
-              <img src="/article2.jpg" alt="文章插图" onerror="this.src='https://picsum.photos/800/400?room'">
-            </div>
-            <div class="card-content">
-              <h3><a href="/article1.html" style="color: inherit; text-decoration: none;">那个夏天的备忘录</a></h3>
-              <p>有时候，只要一抬头就能看到那片蓝天。代码也是一样，理清思绪，世界就会豁然开朗。</p>
-              <span class="date">2026-06-18</span>
-            </div>
-          </article>
+        <div class="article-list" id="recentArticlesContainer">
+          <!-- JS 动态渲染 -->
         </div>
       </section>
 
@@ -93,5 +74,6 @@
   </main>
 
   <script type="module" src="/main.js"></script>
+  <script type="module" src="/index-client.js"></script>
 </body>
 </html>
