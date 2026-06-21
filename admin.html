@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>控制台 - 夏色绘卷 CMS</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      margin: 120px auto 100px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      padding: 40px 60px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0,0,0,0.05);
+      min-height: 60vh;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 2px dashed #f1f2f6;
+      padding-bottom: 20px;
+    }
+    .admin-header h1 {
+      font-family: var(--font-serif);
+      color: var(--primary-color);
+      font-size: 2rem;
+    }
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: #7ca8e0;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(143, 184, 237, 0.3);
+    }
+    .article-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .article-table th, .article-table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid #f1f2f6;
+    }
+    .article-table th {
+      color: #95a5a6;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .article-table td.title {
+      font-family: var(--font-serif);
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 1.1rem;
+    }
+    .article-table td.date {
+      color: #7f8c8d;
+      font-family: monospace;
+    }
+    .action-btns {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-edit {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+    .btn-delete {
+      color: var(--secondary-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    .btn-edit:hover, .btn-delete:hover {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar scrolled">
+    <div class="logo">夏色绘卷 CMS</div>
+    <ul class="nav-links">
+      <li><a href="/index.html">返回前台主页</a></li>
+    </ul>
+  </nav>
+
+  <main class="admin-container">
+    <div class="admin-header">
+      <h1>文章管理台</h1>
+      <a href="/editor.html" class="btn-primary">✍️ 写新文章</a>
+    </div>
+
+    <table class="article-table">
+      <thead>
+        <tr>
+          <th>标题</th>
+          <th>发布日期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="articleList">
+        <!-- JS 动态渲染 -->
+        <tr><td colspan="3" style="text-align:center; padding: 40px; color: #999;">载入中...</td></tr>
+      </tbody>
+    </table>
+
+    <div class="admin-header" style="margin-top: 80px;">
+      <h1>友链管理台</h1>
+      <button id="btnAddFriend" class="btn-primary" style="background: var(--secondary-color);">🔗 添加友链</button>
+    </div>
+
+    <table class="article-table">
+      <thead>
+        <tr>
+          <th>网站名称 / 描述</th>
+          <th>链接</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="friendList">
+        <tr><td colspan="3" style="text-align:center; padding: 40px; color: #999;">载入中...</td></tr>
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Friend Modal -->
+  <div id="friendModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 40px; border-radius: 12px; width: 400px; display: flex; flex-direction: column; gap: 15px;">
+      <h2 style="margin: 0; font-family: var(--font-serif); color: var(--primary-color);">编辑友链</h2>
+      <input type="hidden" id="fId">
+      <input type="text" id="fName" placeholder="网站名称" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none;">
+      <input type="text" id="fDesc" placeholder="一句话描述" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none;">
+      <input type="text" id="fUrl" placeholder="网站链接 (http...)" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none;">
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="fAvatar" placeholder="头像 URL" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; flex: 1; outline: none;">
+        <button id="btnUploadAvatar" type="button" style="padding: 0 15px; border: none; background: #f1f2f6; border-radius: 6px; cursor: pointer;">📁</button>
+        <input type="file" id="avatarFile" accept="image/*" style="display: none;">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button id="btnCancelFriend" style="padding: 8px 16px; border: none; background: #f1f2f6; border-radius: 6px; cursor: pointer;">取消</button>
+        <button id="btnSaveFriend" class="btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/admin.js" type="module"></script>
+</body>
+</html>

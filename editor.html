@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>沉浸式写作台 - 夏色绘卷 CMS</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/article.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #f4f7f6;
+    }
+    .editor-header {
+      height: 60px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+    .editor-header .logo {
+      font-size: 1.2rem;
+    }
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .btn-back {
+      color: #95a5a6;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    .btn-save {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 6px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .btn-save:hover {
+      background: #7ca8e0;
+      transform: translateY(-2px);
+    }
+    .editor-workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .pane-left {
+      width: 50%;
+      background: white;
+      border-right: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-config {
+      padding: 20px 40px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      background: #fafbfc;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .meta-row {
+      display: flex;
+      gap: 15px;
+    }
+    .meta-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .meta-input:focus {
+      border-color: var(--primary-color);
+    }
+    #titleInput {
+      font-size: 1.4rem;
+      font-family: var(--font-serif);
+      font-weight: bold;
+      border: none;
+      border-bottom: 2px dashed #e1e4e8;
+      border-radius: 0;
+      background: transparent;
+      padding: 10px 0;
+    }
+    #titleInput:focus {
+      border-color: var(--primary-color);
+    }
+    .btn-icon {
+      background: #f1f2f6;
+      border: none;
+      padding: 0 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-icon:hover {
+      background: #dfe4ea;
+    }
+    .editor-toolbar {
+      padding: 10px 40px;
+      background: #fff;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      gap: 10px;
+    }
+    .btn-toolbar {
+      background: #f1f2f6;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-toolbar:hover {
+      background: #dfe4ea;
+    }
+    .markdown-editor {
+      flex: 1;
+      padding: 30px 40px;
+      border: none;
+      resize: none;
+      outline: none;
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #333;
+      background: transparent;
+    }
+    .pane-right {
+      width: 50%;
+      overflow-y: auto;
+      padding: 40px 60px;
+      background: #fdfdfd;
+      scroll-behavior: smooth;
+    }
+    .preview-body {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    /* Notification Toast */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(44, 62, 80, 0.9);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="editor-header">
+    <div class="logo">沉浸式写作台</div>
+    <div class="header-actions">
+      <a href="/admin.html" class="btn-back">← 返回控制台</a>
+      <button id="btnSave" class="btn-save">发布文章</button>
+    </div>
+  </header>
+
+  <div class="editor-workspace">
+    <!-- Left Pane: Input -->
+    <div class="pane-left">
+      <div class="meta-config">
+        <input type="text" id="titleInput" class="meta-input" placeholder="输入文章的绝妙标题..." autocomplete="off" />
+        <div class="meta-row">
+          <input type="date" id="dateInput" class="meta-input" />
+          <input type="text" id="tagsInput" class="meta-input" placeholder="标签 (如: 前端,随笔) 逗号分隔" autocomplete="off" />
+        </div>
+        <div class="meta-row">
+          <input type="text" id="summaryInput" class="meta-input" placeholder="一句话摘要 (显示在主页卡片上)..." autocomplete="off" />
+        </div>
+        <div class="meta-row">
+          <div style="display: flex; flex: 1; gap: 10px;">
+            <input type="text" id="imageInput" class="meta-input" placeholder="封面图片 URL (例如 /article1.jpg)" autocomplete="off" />
+            <button id="btnUploadCover" type="button" class="btn-icon" title="上传本地图片">📁</button>
+          </div>
+        </div>
+      </div>
+      <div class="editor-toolbar">
+        <button id="btnUploadContentImage" type="button" class="btn-toolbar">🖼️ 插入图片</button>
+        <input type="file" id="coverFileInput" accept="image/*" style="display: none;" />
+        <input type="file" id="contentFileInput" accept="image/*" style="display: none;" />
+      </div>
+      <textarea id="mdInput" class="markdown-editor" placeholder="在此开始撰写您的故事... (支持 Markdown 语法)"></textarea>
+    </div>
+
+    <!-- Right Pane: Preview -->
+    <div class="pane-right">
+      <div class="article-body markdown-body preview-body" id="previewPane">
+        <h2 style="color: #ccc; text-align: center; margin-top: 100px; font-weight: normal;">实时预览区域</h2>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">保存成功</div>
+
+  <script src="/editor.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+/* 高级优雅排版专用样式 */
+
+.article-page {
+  background-color: #f4f7f6;
+  background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%238fb8ed" fill-opacity="0.08" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="1"/%3E%3C/g%3E%3C/svg%3E'); /* 极简的点状网格，显得更精致 */
+}
+
+.article-container {
+  max-width: 860px;
+  margin: 120px auto 100px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 8px; /* 边缘稍微圆润一些 */
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+.article-hero {
+  width: 100%;
+  height: 420px;
+  overflow: hidden;
+  position: relative;
+}
+
+.article-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02); /* 轻微放大以避免边缘瑕疵 */
+}
+
+.article-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 100%);
+}
+
+.article-header {
+  text-align: center;
+  padding: 0 80px 40px;
+  position: relative;
+  z-index: 2;
+  margin-top: -80px;
+}
+
+.article-header h1 {
+  font-family: var(--font-serif);
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #2c3e50; /* 深邃的蓝灰色，比纯黑更优雅 */
+  letter-spacing: 0.12em;
+  margin-bottom: 25px;
+  line-height: 1.4;
+  text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+}
+
+.article-meta {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: #95a5a6;
+  letter-spacing: 0.3em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  text-transform: uppercase;
+}
+
+.article-meta::before, .article-meta::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(200,200,200,0), rgba(150,150,150,0.5), rgba(200,200,200,0));
+}
+
+.item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Markdown 排版细节 */
+.markdown-body {
+  line-height: 1.8;
+}
+.markdown-body h2 {
+  margin-top: 40px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f2f6;
+}
+.markdown-body h3 {
+  margin-top: 30px;
+  color: #34495e;
+}
+.markdown-body pre {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 0.9rem;
+  margin: 20px 0;
+}
+.markdown-body code {
+  background: #f1f2f6;
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #e84393;
+}
+
+/* 悬浮侧边大纲 (绝对常驻右侧空白处，极致排版) */
+.article-toc-wrapper {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  /* 动态宽度计算：左侧锚定文章边缘，同时被右侧安全距离约束 */
+  left: calc(50vw + 450px + 40px); 
+  right: 20px; /* 距离滚动条永远保持至少 20px 的安全距离 */
+  max-width: 220px; /* 超大屏幕上的最大宽度 */
+  z-index: 100;
+}
+
+.article-toc {
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+.article-toc h3 {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: #bdc3c7;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+#tocList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-item {
+  margin-bottom: 12px;
+}
+
+.toc-h3 {
+  margin-bottom: 8px; /* 次级标题稍微紧凑 */
+}
+
+.toc-link {
+  text-decoration: none;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  /* 平滑过渡颜色和文本阴影 */
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  display: block;
+  line-height: 1.5;
+  font-weight: 400;
+  word-break: break-word; /* 防止长英文词组撞墙 */
+}
+
+.toc-h3 .toc-link {
+  font-size: 0.8rem;
+  color: #b2bec3; /* 次级标题颜色更淡，弱化层级 */
+  padding-left: 16px; /* 明显的缩进 */
+  position: relative;
+}
+
+/* 次级标题的指引横线 */
+.toc-h3 .toc-link::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 1px;
+  background: #dfe6e9;
+  transition: background 0.3s ease;
+}
+
+.toc-link:hover {
+  color: #2d3436; /* 鼠标悬浮时变为深灰色 */
+}
+
+/* 激活状态：使用 text-shadow 模拟完美加粗，实现极其丝滑的渐变，且绝不改变物理宽度导致换行 */
+.toc-link.active {
+  color: var(--primary-color);
+  text-shadow: 0.4px 0 0 var(--primary-color), -0.4px 0 0 var(--primary-color), 0 0.4px 0 var(--primary-color), 0 -0.4px 0 var(--primary-color);
+}
+
+.toc-h3 .toc-link.active {
+  color: var(--primary-color);
+  text-shadow: 0.2px 0 0 var(--primary-color), -0.2px 0 0 var(--primary-color);
+}
+
+.toc-h3 .toc-link.active::before {
+  background: var(--primary-color);
+}
+
+@media (max-width: 1320px) {
+  .article-toc-wrapper {
+    display: none !important; /* 屏幕空间不足以展现高级留白时，优雅地隐藏大纲 */
+  }
+}
+
+.article-body {
+  padding: 0 100px 80px;
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+  line-height: 2.3;
+  color: #4a4f55;
+  text-align: justify;
+}
+
+.article-body p {
+  margin-bottom: 2.2em;
+  text-indent: 2.3em;
+  letter-spacing: 0.03em;
+}
+
+/* 修复首字下沉的间距和排版问题 */
+.article-body > p:first-of-type {
+  text-indent: 0; /* 取消包含首字下沉段落的缩进，解决右侧留白问题 */
+}
+
+.article-body > p:first-of-type::first-letter {
+  font-size: 3.6rem;
+  float: left;
+  line-height: 1;
+  padding-top: 8px;
+  padding-right: 12px;
+  padding-left: 2px;
+  margin-bottom: -5px;
+  color: var(--primary-color);
+  font-weight: 700;
+  text-shadow: 3px 3px 0px rgba(143, 184, 237, 0.15); /* 淡淡的重影增加精致感 */
+}
+
+.article-body h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin: 3.5em 0 1.5em;
+  text-align: center;
+  letter-spacing: 0.15em;
+  position: relative;
+}
+
+.article-body h2::after {
+  content: '✦';
+  display: block;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  margin-top: 15px;
+  opacity: 0.7;
+}
+
+.article-body blockquote {
+  margin: 3.5em 0;
+  padding: 2.5em 3.5em;
+  background: #fcfdfe;
+  border-radius: 4px;
+  border: 1px solid rgba(143, 184, 237, 0.2);
+  border-left: 4px solid var(--secondary-color);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: #5d6d7e;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(143, 184, 237, 0.03);
+}
+
+.article-body blockquote::before {
+  content: '“';
+  font-family: var(--font-serif);
+  font-size: 6rem;
+  color: rgba(247, 168, 184, 0.15); /* pastel pink, more transparent */
+  position: absolute;
+  top: -20px;
+  left: 15px;
+  line-height: 1;
+}
+
+.article-body blockquote p {
+  text-indent: 0;
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .article-container { margin: 80px 20px; }
+  .article-hero { height: 250px; }
+  .article-header { padding: 0 30px 30px; margin-top: -40px; }
+  .article-header h1 { font-size: 1.8rem; letter-spacing: 0.05em; }
+  .article-body { padding: 0 30px 50px; font-size: 1.05rem; }
+  .article-body p { text-indent: 2em; }
+}
