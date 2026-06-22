@@ -256,6 +256,11 @@
   position: relative;
 }
 
+/* 如果 H2 是文章的第一个元素，取消它顶部巨大的留白 */
+.article-body > *:first-child {
+  margin-top: 0 !important;
+}
+
 .article-body h2::after {
   content: '✦';
   display: block;
