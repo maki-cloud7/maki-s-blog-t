@@ -19,12 +19,5 @@ export const friends = [
     "desc": "新时代agent全栈攻城狮, 依旧未来可期",
     "url": "https://iucoder99.github.io/blog_pages/",
     "avatar": "/uploads/1782097184363-default.jpg"
-  },
-  {
-    "id": "1782097971042",
-    "name": "maki",
-    "desc": "你好",
-    "url": "https://github.com/maki-cloud7",
-    "avatar": "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV2UNqOKdJgMgI4DRS5JEalYwqUpm4hQACAh4AAqOTyVWksts846kQgzwE.jpg"
   }
 ];
