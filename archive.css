@@ -152,7 +152,7 @@
 .group-title::before {
   content: '';
   position: absolute;
-  left: -33px;
+  left: -36px;
   top: 50%;
   transform: translateY(-50%);
   width: 14px;
