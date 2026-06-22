@@ -131,6 +131,32 @@
     </table>
 
     <div class="admin-header" style="margin-top: 80px;">
+      <h1>社交链接管理台</h1>
+      <button id="btnSaveSocial" class="btn-primary" style="background: #e67e22;">保存社交链接</button>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">GitHub 链接</label>
+          <input type="text" id="socialGithub" placeholder="https://github.com/..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">Bilibili 链接</label>
+          <input type="text" id="socialBilibili" placeholder="https://space.bilibili.com/..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">QQ 链接</label>
+          <input type="text" id="socialQq" placeholder="https://qm.qq.com/..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">Telegram 链接</label>
+          <input type="text" id="socialTelegram" placeholder="https://t.me/..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; box-sizing: border-box;">
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-header" style="margin-top: 80px;">
       <h1>友链管理台</h1>
       <button id="btnAddFriend" class="btn-primary" style="background: var(--secondary-color);">🔗 添加友链</button>
     </div>

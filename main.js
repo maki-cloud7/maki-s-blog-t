@@ -1,6 +1,7 @@
 import Lenis from 'lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { social } from './social.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -93,4 +94,29 @@ document.addEventListener("DOMContentLoaded", () => {
     end: 99999,
     toggleClass: {className: 'scrolled', targets: navbar}
   });
+
+  // Inject Social Links
+  const githubLink = document.querySelector('a[aria-label="GitHub"]');
+  if (githubLink && social.github !== "#") {
+    githubLink.href = social.github;
+    githubLink.target = "_blank";
+  }
+  
+  const bilibiliLink = document.querySelector('a[aria-label="Bilibili"]');
+  if (bilibiliLink && social.bilibili !== "#") {
+    bilibiliLink.href = social.bilibili;
+    bilibiliLink.target = "_blank";
+  }
+  
+  const qqLink = document.querySelector('a[aria-label="QQ"]');
+  if (qqLink && social.qq !== "#") {
+    qqLink.href = social.qq;
+    qqLink.target = "_blank";
+  }
+  
+  const telegramLink = document.querySelector('a[aria-label="Telegram"]');
+  if (telegramLink && social.telegram !== "#") {
+    telegramLink.href = social.telegram;
+    telegramLink.target = "_blank";
+  }
 });

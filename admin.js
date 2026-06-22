@@ -208,6 +208,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.target.value = '';
   });
 
+  // --- Social Links Management ---
+  const socialGithub = document.getElementById('socialGithub');
+  const socialBilibili = document.getElementById('socialBilibili');
+  const socialQq = document.getElementById('socialQq');
+  const socialTelegram = document.getElementById('socialTelegram');
+  const btnSaveSocial = document.getElementById('btnSaveSocial');
+
+  async function loadSocial() {
+    try {
+      const res = await fetch('/api/social');
+      const social = await res.json();
+      if (social) {
+        socialGithub.value = social.github || '';
+        socialBilibili.value = social.bilibili || '';
+        socialQq.value = social.qq || '';
+        socialTelegram.value = social.telegram || '';
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  if (btnSaveSocial) {
+    btnSaveSocial.addEventListener('click', async () => {
+      const originalText = btnSaveSocial.textContent;
+      btnSaveSocial.textContent = '保存中...';
+      try {
+        await fetch('/api/save-social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            github: socialGithub.value,
+            bilibili: socialBilibili.value,
+            qq: socialQq.value,
+            telegram: socialTelegram.value
+          })
+        });
+        btnSaveSocial.textContent = '✅ 保存成功';
+        setTimeout(() => btnSaveSocial.textContent = originalText, 2000);
+      } catch (e) {
+        alert('保存失败: ' + e.message);
+        btnSaveSocial.textContent = originalText;
+      }
+    });
+  }
+
   // --- Deploy Management ---
   const btnDeploy = document.getElementById('btnDeploy');
   if (btnDeploy) {
@@ -243,4 +289,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   loadArticles();
   loadFriends();
+  loadSocial();
 });

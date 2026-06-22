@@ -10,6 +10,26 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARTICLES_JS_PATH = path.resolve(__dirname, 'articles.js');
 const ARTICLES_DIR = path.resolve(__dirname, 'public/articles');
 const FRIENDS_JS_PATH = path.resolve(__dirname, 'friends.js');
+const SOCIAL_JS_PATH = path.resolve(__dirname, 'social.js');
+
+// Utility to read and parse social.js
+async function getSocial() {
+  try {
+    const content = await fs.readFile(SOCIAL_JS_PATH, 'utf-8');
+    const arrayStr = content.replace('export const social = ', '').trim().replace(/;$/, '');
+    const parser = new Function(`return ${arrayStr}`);
+    return parser();
+  } catch (err) {
+    console.error("Error reading social.js", err);
+    return { github: "#", bilibili: "#", qq: "#", telegram: "#" };
+  }
+}
+
+// Utility to save social.js
+async function saveSocial(socialObj) {
+  const content = `export const social = ${JSON.stringify(socialObj, null, 2)};\n`;
+  await fs.writeFile(SOCIAL_JS_PATH, content, 'utf-8');
+}
 
 // Utility to read and parse friends.js
 async function getFriends() {
@@ -141,6 +161,38 @@ export default defineConfig({
              });
           } else {
              next();
+          }
+        });
+
+        // API endpoint to get social links
+        server.middlewares.use('/api/social', async (req, res, next) => {
+          if (req.method === 'GET') {
+            const social = await getSocial();
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(social));
+          } else {
+            next();
+          }
+        });
+
+        // API endpoint to save social links
+        server.middlewares.use('/api/save-social', (req, res, next) => {
+          if (req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', async () => {
+              try {
+                const data = JSON.parse(body);
+                await saveSocial(data);
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ success: true }));
+              } catch (e) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: e.message }));
+              }
+            });
+          } else {
+            next();
           }
         });
 
