@@ -30,7 +30,7 @@ const galgameNodes = {
     text: "发呆，音乐，独立游戏，编曲，玄学，很多都还是刚刚开始。",
     characterImg: "/images/galgame_mascot_base.png",
     options: [
-      { label: "返回上一层", targetNode: "menu" },
+      { label: "了解更多我的信息", targetNode: "menu" },
       { label: "返回最开始", targetNode: "intro" }
     ]
   },
@@ -38,7 +38,7 @@ const galgameNodes = {
     text: "在未来开一家唱片店",
     characterImg: "/images/galgame_mascot_base.png",
     options: [
-      { label: "返回上一层", targetNode: "menu" },
+      { label: "了解更多我的信息", targetNode: "menu" },
       { label: "返回最开始", targetNode: "intro" }
     ]
   },
@@ -65,6 +65,7 @@ function renderGalgameNode(nodeId) {
   
   // Update Character Image with Fade
   const charImg = document.getElementById("heroCharacter");
+  
   if (charImg && charImg.src.indexOf(node.characterImg) === -1) {
     charImg.style.opacity = 0;
     setTimeout(() => {
