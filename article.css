@@ -113,6 +113,14 @@
   border-radius: 4px;
   color: #e84393;
 }
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 30px auto;
+  display: block;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+}
 
 /* 悬浮侧边大纲 (绝对常驻右侧空白处，极致排版) */
 .article-toc-wrapper {
