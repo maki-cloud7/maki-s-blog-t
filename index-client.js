@@ -1,7 +1,161 @@
 import { articles } from './articles.js';
 import { gsap } from 'gsap';
 
+// --- Galgame Logic ---
+const galgameNodes = {
+  intro: {
+    text: "欢迎来到我的网站，我会在这里分享各种东西，以文字为载体。",
+    characterImg: "/images/galgame_mascot_base.png",
+    nextNode: "next1",
+    options: []
+  },
+  next1: {
+    text: "往下拉可以看到最近三篇文章以及我的联系方式",
+    characterImg: "/images/galgame_mascot_base.png",
+    options: [
+      { label: "了解更多我的信息", targetNode: "menu" },
+      { label: "离开", targetNode: "leave" }
+    ]
+  },
+  menu: {
+    text: "你想了解什么呢？",
+    characterImg: "/images/galgame_mascot_base.png",
+    options: [
+      { label: "我的梦想", targetNode: "dream" },
+      { label: "我平时喜欢做的事情", targetNode: "hobbies" },
+      { label: "返回最开始", targetNode: "intro" }
+    ]
+  },
+  hobbies: {
+    text: "发呆，音乐，独立游戏，编曲，玄学，很多都还是刚刚开始。",
+    characterImg: "/images/galgame_mascot_base.png",
+    options: [
+      { label: "返回上一层", targetNode: "menu" },
+      { label: "返回最开始", targetNode: "intro" }
+    ]
+  },
+  dream: {
+    text: "在未来开一家唱片店",
+    characterImg: "/images/galgame_mascot_base.png",
+    options: [
+      { label: "返回上一层", targetNode: "menu" },
+      { label: "返回最开始", targetNode: "intro" }
+    ]
+  },
+  leave: {
+    text: "期待下次再见~",
+    characterImg: "/images/galgame_mascot_base.png",
+    options: [
+      { label: "返回最开始", targetNode: "intro" }
+    ]
+  }
+};
+
+let typewriterTimeout;
+let isTyping = false;
+let currentText = "";
+let currentIndex = 0;
+let targetText = "";
+let currentNodeData = null;
+
+function renderGalgameNode(nodeId) {
+  const node = galgameNodes[nodeId];
+  if (!node) return;
+  currentNodeData = node;
+  
+  // Update Character Image with Fade
+  const charImg = document.getElementById("heroCharacter");
+  if (charImg && charImg.src.indexOf(node.characterImg) === -1) {
+    charImg.style.opacity = 0;
+    setTimeout(() => {
+      charImg.src = node.characterImg;
+      charImg.onload = () => { charImg.style.opacity = 1; };
+    }, 400); // Wait for fade out
+  }
+  
+  // Clear options
+  const optionsContainer = document.getElementById("galgameOptions");
+  if (optionsContainer) {
+    optionsContainer.innerHTML = "";
+  }
+  
+  // Start Typewriter
+  const textElement = document.getElementById("typewriterText");
+  const indicator = document.getElementById("dialogueIndicator");
+  if (textElement) {
+    clearTimeout(typewriterTimeout);
+    targetText = node.text;
+    textElement.textContent = "";
+    currentIndex = 0;
+    isTyping = true;
+    if (indicator) indicator.style.display = 'none';
+    
+    function typeWriter() {
+      if (currentIndex < targetText.length) {
+        textElement.textContent += targetText.charAt(currentIndex);
+        currentIndex++;
+        typewriterTimeout = setTimeout(typeWriter, 50);
+      } else {
+        isTyping = false;
+        if (indicator) indicator.style.display = 'block';
+        showOptions(node.options);
+      }
+    }
+    typeWriter();
+  }
+}
+
+function finishTypingInstantly() {
+  if (isTyping && currentNodeData) {
+    clearTimeout(typewriterTimeout);
+    const textElement = document.getElementById("typewriterText");
+    const indicator = document.getElementById("dialogueIndicator");
+    if (textElement) {
+      textElement.textContent = targetText;
+    }
+    isTyping = false;
+    if (indicator) indicator.style.display = 'block';
+    showOptions(currentNodeData.options);
+  }
+}
+
+function showOptions(options) {
+  const optionsContainer = document.getElementById("galgameOptions");
+  if (!optionsContainer || !options || options.length === 0) return;
+  
+  optionsContainer.innerHTML = ""; // Ensure empty
+  
+  options.forEach((opt, index) => {
+    const btn = document.createElement("button");
+    btn.className = "galgame-option-btn";
+    btn.textContent = opt.label;
+    btn.style.animationDelay = `${index * 0.15}s`;
+    btn.onclick = (e) => {
+      e.stopPropagation(); // prevent triggering the dialogue box click
+      renderGalgameNode(opt.targetNode);
+    };
+    optionsContainer.appendChild(btn);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Init Galgame
+  const dialogueBox = document.getElementById("dialogueBox");
+  if (dialogueBox) {
+    dialogueBox.addEventListener("click", () => {
+      if (isTyping) {
+        finishTypingInstantly();
+      } else if (currentNodeData && currentNodeData.nextNode) {
+        renderGalgameNode(currentNodeData.nextNode);
+      }
+    });
+    // Start first node
+    setTimeout(() => {
+      renderGalgameNode("intro");
+    }, 800);
+  }
+
+
   const container = document.getElementById("recentArticlesContainer");
   if (container) {
     const recentArticles = articles.slice(0, 2);

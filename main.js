@@ -51,25 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Typewriter effect for dialogue
-  const textElement = document.getElementById("typewriterText");
-  if (textElement) {
-    const fullText = textElement.textContent;
-    textElement.textContent = "";
-    
-    let i = 0;
-    function typeWriter() {
-      if (i < fullText.length) {
-        textElement.textContent += fullText.charAt(i);
-        i++;
-        setTimeout(typeWriter, 50); // Speed of typing
-      }
-    }
-    
-    // Start typewriter after a short delay
-    setTimeout(typeWriter, 800);
-  }
-
+  // Typewriter effect moved to index-client.js for Galgame system
   // Fade Up Elements with ScrollTrigger
   const fadeUpElements = document.querySelectorAll(".gsap-fade-up");
   

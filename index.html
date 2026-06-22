@@ -28,13 +28,21 @@
         <!-- AI generated or downloaded image -->
         <img src="/bg_hero.jpg" alt="夏日风景" onerror="this.src='https://picsum.photos/1920/1080?scenery'" />
       </div>
-      
+      <div class="hero-character-container">
+        <img src="/images/chino_welcome_1782107361425.png" alt="看板娘" id="heroCharacter" class="hero-character">
+      </div>
+
       <div class="dialogue-container" id="dialogueContainer">
-        <div class="dialogue-box">
-          <div class="speaker-name">我</div>
-          <div class="dialogue-text" id="typewriterText">“在这个充满夏日气息的地方，记录下所有的回忆与故事……”</div>
-          <div class="dialogue-indicator">▼</div>
+        <div class="dialogue-box" id="dialogueBox" style="cursor: pointer;">
+          <div class="speaker-name">向导</div>
+          <div class="dialogue-text" id="typewriterText"></div>
+          <div class="dialogue-indicator" id="dialogueIndicator">▼</div>
         </div>
+      </div>
+      
+      <!-- 将选项移动到屏幕中间 (Hero容器内) -->
+      <div id="galgameOptions" class="galgame-options">
+        <!-- 动态生成的选项会放在这里 -->
       </div>
     </section>
 
