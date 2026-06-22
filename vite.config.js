@@ -2,7 +2,10 @@ import { defineConfig } from 'vite';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { exec } from 'child_process';
+import util from 'util';
 
+const execPromise = util.promisify(exec);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARTICLES_JS_PATH = path.resolve(__dirname, 'articles.js');
 const ARTICLES_DIR = path.resolve(__dirname, 'public/articles');
@@ -240,6 +243,28 @@ export default defineConfig({
                 res.end(JSON.stringify({ error: e.message }));
               }
             });
+          } else {
+            next();
+          }
+        });
+
+        // API endpoint to trigger git push (Deploy)
+        server.middlewares.use('/api/deploy', async (req, res, next) => {
+          if (req.method === 'POST') {
+            try {
+              // Add all changes, commit, and push
+              // "|| true" prevents error if there's nothing to commit
+              await execPromise('git add .');
+              await execPromise('git commit -m "Auto deploy from Local CMS" || true');
+              const { stdout, stderr } = await execPromise('git push');
+              
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, message: stdout || stderr }));
+            } catch (e) {
+              console.error("Deploy error:", e);
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: e.message || e.toString() }));
+            }
           } else {
             next();
           }

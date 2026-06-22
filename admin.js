@@ -187,6 +187,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.target.value = '';
   });
 
+  // --- Deploy Management ---
+  const btnDeploy = document.getElementById('btnDeploy');
+  if (btnDeploy) {
+    btnDeploy.addEventListener('click', async () => {
+      const originalText = btnDeploy.innerHTML;
+      btnDeploy.innerHTML = '🚀 正在打包并推送到云端...';
+      btnDeploy.style.opacity = '0.7';
+      btnDeploy.style.pointerEvents = 'none';
+      
+      try {
+        const res = await fetch('/api/deploy', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          btnDeploy.innerHTML = '✅ 发布成功！Vercel正在更新';
+          btnDeploy.style.background = '#2ecc71';
+        } else {
+          alert('发布失败: ' + data.error);
+          btnDeploy.innerHTML = originalText;
+        }
+      } catch (e) {
+        alert('发布失败: ' + e.message);
+        btnDeploy.innerHTML = originalText;
+      } finally {
+        setTimeout(() => {
+          btnDeploy.innerHTML = originalText;
+          btnDeploy.style.opacity = '1';
+          btnDeploy.style.pointerEvents = 'auto';
+          btnDeploy.style.background = '#27ae60';
+        }, 5000);
+      }
+    });
+  }
+
   loadArticles();
   loadFriends();
 });
