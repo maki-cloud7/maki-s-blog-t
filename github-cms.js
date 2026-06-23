@@ -32,7 +32,7 @@ export function requireAuth() {
 
 export async function fetchGithubFile(path) {
   const token = getGitHubToken();
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`, {
+  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}&t=${Date.now()}`, {
     headers: {
       'Authorization': `token ${token}`,
       'Accept': 'application/vnd.github.v3+json'
