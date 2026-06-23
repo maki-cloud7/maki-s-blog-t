@@ -1,24 +1,27 @@
 import { marked } from 'marked';
 
-// Security Check: Only allow local access
-if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-  document.documentElement.innerHTML = `
-    <div style="height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0f172a; font-family: 'Noto Serif SC', serif; margin: 0; position: fixed; top: 0; left: 0; z-index: 99999;">
-      <div style="text-align: center; animation: fadeUp 0.8s ease-out;">
-        <div style="font-size: 5rem; margin-bottom: 20px;">🛡️</div>
-        <h1 style="color: #f87171; font-size: 3.5rem; letter-spacing: 0.1em; margin: 0 0 15px 0; text-shadow: 0 0 20px rgba(248,113,113,0.3);">AREA RESTRICTED</h1>
-        <p style="color: #94a3b8; font-size: 1.2rem; letter-spacing: 0.05em; margin-bottom: 40px;">检测到外部网络访问。创世权限仅限本地主机 (Localhost) 持有者。</p>
-        <a href="/index.html" style="display: inline-block; padding: 12px 35px; background: transparent; border: 1px solid #38bdf8; color: #38bdf8; text-decoration: none; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em; transition: all 0.3s ease;" onmouseover="this.style.background='#38bdf8'; this.style.color='#0f172a'; this.style.boxShadow='0 0 20px rgba(56,189,248,0.4)'" onmouseout="this.style.background='transparent'; this.style.color='#38bdf8'; this.style.boxShadow='none'">返回观测世界</a>
+// Security Check: Local access is free, external access requires a simple password
+if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.startsWith('192.168.') && !window.location.hostname.startsWith('10.')) {
+  const pwd = prompt("🌍 检测到外部公网访问。为了保护您的博客数据，请输入创世访问密码：");
+  if (pwd !== "maki") {
+    document.documentElement.innerHTML = `
+      <div style="height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0f172a; font-family: 'Noto Serif SC', serif; margin: 0; position: fixed; top: 0; left: 0; z-index: 99999;">
+        <div style="text-align: center; animation: fadeUp 0.8s ease-out;">
+          <div style="font-size: 5rem; margin-bottom: 20px;">🛡️</div>
+          <h1 style="color: #f87171; font-size: 3.5rem; letter-spacing: 0.1em; margin: 0 0 15px 0; text-shadow: 0 0 20px rgba(248,113,113,0.3);">ACCESS DENIED</h1>
+          <p style="color: #94a3b8; font-size: 1.2rem; letter-spacing: 0.05em; margin-bottom: 40px;">密码错误或取消输入。创世权限已锁定。</p>
+          <a href="/index.html" style="display: inline-block; padding: 12px 35px; background: transparent; border: 1px solid #38bdf8; color: #38bdf8; text-decoration: none; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em; transition: all 0.3s ease;" onmouseover="this.style.background='#38bdf8'; this.style.color='#0f172a'; this.style.boxShadow='0 0 20px rgba(56,189,248,0.4)'" onmouseout="this.style.background='transparent'; this.style.color='#38bdf8'; this.style.boxShadow='none'">返回观测世界</a>
+        </div>
       </div>
-    </div>
-    <style>
-      @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-    </style>
-  `;
-  throw new Error("CMS is restricted to local development environment only.");
+      <style>
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      </style>
+    `;
+    throw new Error("Invalid password for external CMS access.");
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

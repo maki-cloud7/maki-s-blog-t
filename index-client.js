@@ -5,13 +5,13 @@ import { gsap } from 'gsap';
 const galgameNodes = {
   intro: {
     text: "欢迎来到我的网站，我会在这里分享各种东西，以文字为载体。",
-    characterImg: "/images/galgame_mascot_base.png",
+    characterImg: "/images/mascot_base.png",
     nextNode: "next1",
     options: []
   },
   next1: {
     text: "往下拉可以看到最近三篇文章以及我的联系方式",
-    characterImg: "/images/galgame_mascot_base.png",
+    characterImg: "/images/mascot_explaining.png",
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
@@ -19,35 +19,33 @@ const galgameNodes = {
   },
   menu: {
     text: "你想了解什么呢？",
-    characterImg: "/images/galgame_mascot_base.png",
+    characterImg: "/images/mascot_curious.png",
     options: [
       { label: "我的梦想", targetNode: "dream" },
       { label: "我平时喜欢做的事情", targetNode: "hobbies" },
-      { label: "返回最开始", targetNode: "intro" }
+      { label: "离开", targetNode: "leave" }
     ]
   },
   hobbies: {
     text: "发呆，音乐，独立游戏，编曲，玄学，很多都还是刚刚开始。",
-    characterImg: "/images/galgame_mascot_base.png",
+    characterImg: "/images/mascot_shy.png",
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
-      { label: "返回最开始", targetNode: "intro" }
+      { label: "离开", targetNode: "leave" }
     ]
   },
   dream: {
     text: "在未来开一家唱片店",
-    characterImg: "/images/galgame_mascot_base.png",
+    characterImg: "/images/mascot_shy.png",
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
-      { label: "返回最开始", targetNode: "intro" }
+      { label: "离开", targetNode: "leave" }
     ]
   },
   leave: {
     text: "期待下次再见~",
-    characterImg: "/images/galgame_mascot_base.png",
-    options: [
-      { label: "返回最开始", targetNode: "intro" }
-    ]
+    characterImg: "/images/mascot_farewell.png",
+    options: []
   }
 };
 
@@ -128,8 +126,8 @@ function showOptions(options) {
   
   options.forEach((opt, index) => {
     const btn = document.createElement("button");
-    btn.className = "galgame-option-btn";
-    btn.textContent = opt.label;
+    btn.className = "galgame-option-inline-btn";
+    btn.textContent = "▶ " + opt.label;
     btn.style.animationDelay = `${index * 0.15}s`;
     btn.onclick = (e) => {
       e.stopPropagation(); // prevent triggering the dialogue box click

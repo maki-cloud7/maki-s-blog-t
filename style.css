@@ -140,49 +140,37 @@ body {
   50% { transform: translateY(-15px); }
 }
 
-/* Galgame Options */
-.galgame-options {
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+/* Galgame Options Inline */
+.galgame-options-inline {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  width: 80%;
-  max-width: 600px;
-  z-index: 20;
-  pointer-events: none; /* Let container ignore clicks, but children will catch them */
+  gap: 15px;
+  width: 100%;
+  margin-top: 10px;
+  pointer-events: none;
 }
 
-.galgame-option-btn {
+.galgame-option-inline-btn {
   pointer-events: auto; /* Enable clicks on the buttons */
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  padding: 15px 40px;
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  padding: 5px 20px;
   font-family: var(--font-serif);
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: var(--text-color);
-  width: 100%;
-  text-align: center;
+  font-size: 1.6rem;
+  color: #e0f2fe; /* Light blueish white */
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   opacity: 0;
   animation: slideInOption 0.4s forwards;
 }
 
-.galgame-option-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
-  transform: translateY(-3px) scale(1.02);
-  border-color: var(--primary-color);
+.galgame-option-inline-btn:hover {
   color: var(--primary-color);
-  box-shadow: 0 8px 25px rgba(143, 184, 237, 0.4);
+  transform: scale(1.05);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 @keyframes slideInOption {

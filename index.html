@@ -29,20 +29,18 @@
         <img src="/bg_hero.jpg" alt="夏日风景" onerror="this.src='https://picsum.photos/1920/1080?scenery'" />
       </div>
       <div class="hero-character-container">
-        <img src="/images/galgame_mascot_base.png" alt="看板娘" id="heroCharacter" class="hero-character">
+        <img src="/images/mascot_base.png" alt="看板娘" id="heroCharacter" class="hero-character">
       </div>
 
       <div class="dialogue-container" id="dialogueContainer">
         <div class="dialogue-box" id="dialogueBox" style="cursor: pointer;">
           <div class="speaker-name">maki</div>
           <div class="dialogue-text" id="typewriterText"></div>
+          <div id="galgameOptions" class="galgame-options-inline">
+            <!-- 动态生成的选项会放在这里 -->
+          </div>
           <div class="dialogue-indicator" id="dialogueIndicator">▼</div>
         </div>
-      </div>
-      
-      <!-- 将选项移动到屏幕中间 (Hero容器内) -->
-      <div id="galgameOptions" class="galgame-options">
-        <!-- 动态生成的选项会放在这里 -->
       </div>
     </section>
 
