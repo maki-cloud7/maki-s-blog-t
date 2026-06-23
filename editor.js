@@ -1,32 +1,14 @@
 import { marked } from 'marked';
-
-// Security Check: Local access is free, external access requires a simple password
-if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.startsWith('192.168.') && !window.location.hostname.startsWith('10.')) {
-  const pwd = prompt("🌍 检测到外部公网访问。为了保护您的博客数据，请输入创世访问密码：");
-  if (pwd !== "maki") {
-    document.documentElement.innerHTML = `
-      <div style="height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0f172a; font-family: 'Noto Serif SC', serif; margin: 0; position: fixed; top: 0; left: 0; z-index: 99999;">
-        <div style="text-align: center; animation: fadeUp 0.8s ease-out;">
-          <div style="font-size: 5rem; margin-bottom: 20px;">🛡️</div>
-          <h1 style="color: #f87171; font-size: 3.5rem; letter-spacing: 0.1em; margin: 0 0 15px 0; text-shadow: 0 0 20px rgba(248,113,113,0.3);">ACCESS DENIED</h1>
-          <p style="color: #94a3b8; font-size: 1.2rem; letter-spacing: 0.05em; margin-bottom: 40px;">密码错误或取消输入。创世权限已锁定。</p>
-          <a href="/index.html" style="display: inline-block; padding: 12px 35px; background: transparent; border: 1px solid #38bdf8; color: #38bdf8; text-decoration: none; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em; transition: all 0.3s ease;" onmouseover="this.style.background='#38bdf8'; this.style.color='#0f172a'; this.style.boxShadow='0 0 20px rgba(56,189,248,0.4)'" onmouseout="this.style.background='transparent'; this.style.color='#38bdf8'; this.style.boxShadow='none'">返回观测世界</a>
-        </div>
-      </div>
-      <style>
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      </style>
-    `;
-    throw new Error("Invalid password for external CMS access.");
-  }
-}
+import { requireAuth, fetchGithubFile, saveGithubFile, parseJsData, stringifyJsData } from '/github-cms.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireAuth()) return;
+
   const urlParams = new URLSearchParams(window.location.search);
-  const articleId = urlParams.get('id'); // null if new article
+  let articleId = urlParams.get('id'); // null if new article
+  
+  let currentArticlesFileSha = null;
+  let currentMdFileSha = null;
 
   const titleInput = document.getElementById('titleInput');
   const dateInput = document.getElementById('dateInput');
@@ -44,25 +26,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnUploadContentImage = document.getElementById('btnUploadContentImage');
   const contentFileInput = document.getElementById('contentFileInput');
 
-  // Upload logic using Base64
-  async function uploadImage(file) {
+  // Upload logic using Base64 directly to GitHub
+  async function uploadImageToGithub(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const dataUrl = e.target.result;
         try {
-          showToast('上传中...');
-          const res = await fetch('/api/upload-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filename: file.name, dataUrl })
+          showToast('上传至 GitHub...');
+          const base64Data = e.target.result.split(',')[1];
+          const filename = Date.now() + '_' + file.name;
+          const token = localStorage.getItem('github_token');
+          
+          const res = await fetch(`https://api.github.com/repos/maki-cloud7/maki-s-blog-t/contents/public/images/${filename}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: `Upload image ${filename}`,
+              content: base64Data, // Already base64 encoded by FileReader DataURL
+              branch: 'main'
+            })
           });
-          const result = await res.json();
-          if (result.success) {
-            resolve(result.url);
-          } else {
-            reject(result.error);
-          }
+          
+          if (!res.ok) throw new Error('Upload failed');
+          resolve(`/images/${filename}`);
         } catch (err) {
           reject(err.message);
         }
@@ -77,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   coverFileInput.addEventListener('change', async (e) => {
     if (!e.target.files.length) return;
     try {
-      const url = await uploadImage(e.target.files[0]);
+      const url = await uploadImageToGithub(e.target.files[0]);
       imageInput.value = url;
       showToast('封面上传成功');
     } catch(err) {
@@ -91,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   contentFileInput.addEventListener('change', async (e) => {
     if (!e.target.files.length) return;
     try {
-      const url = await uploadImage(e.target.files[0]);
+      const url = await uploadImageToGithub(e.target.files[0]);
       const imgMarkdown = `\n![图片描述](${url})\n`;
       // Insert at cursor
       const startPos = mdInput.selectionStart;
@@ -132,11 +122,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Load existing article if editing
-  if (articleId) {
+  async function loadExistingArticle() {
+    if (!articleId) return;
     try {
+      showToast('正在从 GitHub 加载文章...');
       // 1. Fetch meta
-      const res = await fetch('/api/articles');
-      const articles = await res.json();
+      const fileData = await fetchGithubFile('articles.js');
+      const articles = fileData ? parseJsData(fileData.content, 'articles') : [];
+      currentArticlesFileSha = fileData ? fileData.sha : null;
+      
       const meta = articles.find(a => a.id.toString() === articleId);
       
       if (meta) {
@@ -148,15 +142,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       // 2. Fetch markdown content
-      const mdRes = await fetch(`/articles/${articleId}.md`);
-      if (mdRes.ok) {
-        mdInput.value = await mdRes.text();
+      const mdFile = await fetchGithubFile(`public/articles/${articleId}.md`);
+      if (mdFile) {
+        currentMdFileSha = mdFile.sha;
+        mdInput.value = mdFile.content;
         mdInput.dispatchEvent(new Event('input')); // trigger preview
       }
+      showToast('文章加载成功');
     } catch (e) {
       console.error("Failed to load article", e);
+      alert('加载文章失败: ' + e.message);
     }
   }
+
+  loadExistingArticle();
 
   function showToast(msg) {
     toast.textContent = msg;
@@ -173,43 +172,62 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
     
-    const payload = {
-      id: articleId, // Will be null for new, and auto-generated by backend
-      title,
-      date: dateInput.value,
-      tags: tags.length > 0 ? tags : ['随笔'],
-      summary: summaryInput.value.trim(),
-      image: imageInput.value.trim(),
-      content: mdInput.value
-    };
-
     const originalBtnText = btnSave.textContent;
-    btnSave.textContent = '保存中...';
+    btnSave.textContent = '保存并同步至 GitHub...';
     btnSave.disabled = true;
 
     try {
-      const res = await fetch('/api/save-article', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const isNew = !articleId;
+      if (isNew) {
+        articleId = Date.now().toString();
+      }
+
+      // 1. Save Markdown File
+      await saveGithubFile(`public/articles/${articleId}.md`, mdInput.value, `Save article content ${articleId}`, currentMdFileSha);
       
-      const result = await res.json();
-      if (result.success) {
-        showToast('保存成功！');
-        // If it was a new article, update URL so subsequent saves overwrite it
-        if (!articleId) {
-          const newUrl = new URL(window.location);
-          newUrl.searchParams.set('id', result.id);
-          window.history.replaceState({}, '', newUrl);
-          // Update local variable
-          window.location.search = `?id=${result.id}`; 
-        }
+      // Update sha for subsequent saves
+      const newMdFile = await fetchGithubFile(`public/articles/${articleId}.md`);
+      if (newMdFile) currentMdFileSha = newMdFile.sha;
+
+      // 2. Update articles.js
+      const fileData = await fetchGithubFile('articles.js');
+      let articles = fileData ? parseJsData(fileData.content, 'articles') : [];
+      
+      if (isNew) {
+        articles.unshift({
+          id: articleId,
+          title,
+          date: dateInput.value,
+          tags: tags.length > 0 ? tags : ['随笔'],
+          summary: summaryInput.value.trim(),
+          url: `/post.html?id=${articleId}`,
+          image: imageInput.value.trim() || '/article1.jpg'
+        });
       } else {
-        alert('保存失败: ' + result.error);
+        const index = articles.findIndex(a => a.id.toString() === articleId.toString());
+        if (index !== -1) {
+          articles[index] = {
+            ...articles[index],
+            title,
+            date: dateInput.value,
+            tags: tags.length > 0 ? tags : ['随笔'],
+            summary: summaryInput.value.trim(),
+            image: imageInput.value.trim() || articles[index].image
+          };
+        }
+      }
+
+      await saveGithubFile('articles.js', stringifyJsData(articles, 'articles'), `Update article meta ${articleId}`, fileData ? fileData.sha : null);
+
+      showToast('保存并发布成功！网页将在几分钟后自动更新。');
+      
+      if (isNew) {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('id', articleId);
+        window.history.replaceState({}, '', newUrl);
       }
     } catch (e) {
-      alert('网络错误: ' + e.message);
+      alert('保存失败: ' + e.message);
     } finally {
       btnSave.textContent = originalBtnText;
       btnSave.disabled = false;

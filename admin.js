@@ -1,34 +1,16 @@
-// Security Check: Local access is free, external access requires a simple password
-if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.startsWith('192.168.') && !window.location.hostname.startsWith('10.')) {
-  const pwd = prompt("🌍 检测到外部公网访问。为了保护您的博客数据，请输入创世访问密码：");
-  if (pwd !== "maki") {
-    document.documentElement.innerHTML = `
-      <div style="height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0f172a; font-family: 'Noto Serif SC', serif; margin: 0; position: fixed; top: 0; left: 0; z-index: 99999;">
-        <div style="text-align: center; animation: fadeUp 0.8s ease-out;">
-          <div style="font-size: 5rem; margin-bottom: 20px;">🛡️</div>
-          <h1 style="color: #f87171; font-size: 3.5rem; letter-spacing: 0.1em; margin: 0 0 15px 0; text-shadow: 0 0 20px rgba(248,113,113,0.3);">ACCESS DENIED</h1>
-          <p style="color: #94a3b8; font-size: 1.2rem; letter-spacing: 0.05em; margin-bottom: 40px;">密码错误或取消输入。创世权限已锁定。</p>
-          <a href="/index.html" style="display: inline-block; padding: 12px 35px; background: transparent; border: 1px solid #38bdf8; color: #38bdf8; text-decoration: none; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em; transition: all 0.3s ease;" onmouseover="this.style.background='#38bdf8'; this.style.color='#0f172a'; this.style.boxShadow='0 0 20px rgba(56,189,248,0.4)'" onmouseout="this.style.background='transparent'; this.style.color='#38bdf8'; this.style.boxShadow='none'">返回观测世界</a>
-        </div>
-      </div>
-      <style>
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      </style>
-    `;
-    throw new Error("Invalid password for external CMS access.");
-  }
-}
+import { requireAuth, fetchGithubFile, saveGithubFile, deleteGithubFile, parseJsData, stringifyJsData } from '/github-cms.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireAuth()) return;
+
+  // --- Article Management ---
   const articleList = document.getElementById('articleList');
 
   async function loadArticles() {
     try {
-      const response = await fetch('/api/articles');
-      const articles = await response.json();
+      const fileData = await fetchGithubFile('articles.js');
+      const articles = fileData ? parseJsData(fileData.content, 'articles') : [];
+      window.currentArticlesFileSha = fileData ? fileData.sha : null;
       
       if (articles.length === 0) {
         articleList.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; color: #999;">空空如也，快去写下第一篇文章吧！</td></tr>';
@@ -52,32 +34,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.btn-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = e.target.getAttribute('data-id');
-          if (confirm('确定要彻底删除这篇文章吗？（操作不可逆）')) {
+          if (confirm('确定要彻底删除这篇文章吗？（操作不可逆，将直接同步至 GitHub）')) {
             await deleteArticle(id);
           }
         });
       });
 
     } catch (e) {
-      articleList.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; color: red;">加载失败，请确保本地开发服务器正常运行。</td></tr>';
+      console.error(e);
+      articleList.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; color: red;">加载失败，请检查您的 GitHub Token 是否拥有 repo 权限。</td></tr>';
     }
   }
 
   async function deleteArticle(id) {
     try {
-      const res = await fetch('/api/delete-article', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-      const data = await res.json();
-      if (data.success) {
-        loadArticles(); // Reload list
-      } else {
-        alert('删除失败: ' + data.error);
+      // 1. Delete markdown file
+      const mdFile = await fetchGithubFile(`public/articles/${id}.md`);
+      if (mdFile) {
+        await deleteGithubFile(`public/articles/${id}.md`, `Delete article ${id}`, mdFile.sha);
       }
+      
+      // 2. Remove from articles.js
+      const fileData = await fetchGithubFile('articles.js');
+      let articles = fileData ? parseJsData(fileData.content, 'articles') : [];
+      articles = articles.filter(a => a.id.toString() !== id.toString());
+      
+      await saveGithubFile('articles.js', stringifyJsData(articles, 'articles'), `Remove article ${id} from list`, fileData ? fileData.sha : null);
+      
+      loadArticles(); // Reload list
     } catch (e) {
-      alert('网络错误');
+      console.error(e);
+      alert('删除失败: ' + e.message);
     }
   }
 
@@ -87,9 +74,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   async function loadFriends() {
     try {
-      const res = await fetch('/api/friends');
-      const friends = await res.json();
+      const fileData = await fetchGithubFile('friends.js');
+      const friends = fileData ? parseJsData(fileData.content, 'friends') : [];
       window.currentFriends = friends; // for easy edit lookup
+      window.currentFriendsFileSha = fileData ? fileData.sha : null;
       
       if (friends.length === 0) {
         friendList.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; color: #999;">还没有友链</td></tr>';
@@ -121,11 +109,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', async (e) => {
           const id = e.target.getAttribute('data-id');
           if (confirm('确定删除这个友链吗？')) {
-            await fetch('/api/delete-friend', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id })
-            });
+            let friends = window.currentFriends.filter(f => f.id.toString() !== id.toString());
+            await saveGithubFile('friends.js', stringifyJsData(friends, 'friends'), `Delete friend ${id}`, window.currentFriendsFileSha);
             loadFriends();
           }
         });
@@ -172,20 +157,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnSaveFriend').addEventListener('click', async () => {
     const originalText = document.getElementById('btnSaveFriend').textContent;
     document.getElementById('btnSaveFriend').textContent = '保存中...';
-    await fetch('/api/save-friend', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: fId.value,
-        name: fName.value,
-        desc: fDesc.value,
-        url: fUrl.value,
-        avatar: fAvatar.value
-      })
-    });
-    document.getElementById('btnSaveFriend').textContent = originalText;
-    friendModal.style.display = 'none';
-    loadFriends();
+    try {
+      let friends = [...window.currentFriends];
+      let friendId = fId.value;
+      if (!friendId) {
+        friendId = Date.now().toString();
+        friends.push({
+          id: friendId,
+          name: fName.value,
+          desc: fDesc.value,
+          url: fUrl.value,
+          avatar: fAvatar.value || 'https://picsum.photos/100/100'
+        });
+      } else {
+        const index = friends.findIndex(f => f.id.toString() === friendId.toString());
+        if (index !== -1) {
+          friends[index] = { ...friends[index], name: fName.value, desc: fDesc.value, url: fUrl.value, avatar: fAvatar.value };
+        }
+      }
+      
+      await saveGithubFile('friends.js', stringifyJsData(friends, 'friends'), `Update friend ${friendId}`, window.currentFriendsFileSha);
+      friendModal.style.display = 'none';
+      loadFriends();
+    } catch (e) {
+      alert('保存失败: ' + e.message);
+    } finally {
+      document.getElementById('btnSaveFriend').textContent = originalText;
+    }
   });
 
   // Avatar upload
@@ -198,13 +196,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       btnUploadAvatar.textContent = '...';
-      const res = await fetch('/api/upload-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name, dataUrl: ev.target.result })
-      });
-      const data = await res.json();
-      if (data.success) fAvatar.value = data.url;
+      try {
+        const base64Data = ev.target.result.split(',')[1];
+        const filename = Date.now() + '_' + file.name;
+        // Construct the body manually since saveGithubFile does the base64 encoding of text
+        const token = localStorage.getItem('github_token');
+        const res = await fetch(`https://api.github.com/repos/maki-cloud7/maki-s-blog-t/contents/public/images/${filename}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Upload avatar ${filename}`,
+            content: base64Data, // Already base64 encoded by FileReader DataURL
+            branch: 'main'
+          })
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        fAvatar.value = `/images/${filename}`;
+      } catch (err) {
+        alert('上传失败: ' + err.message);
+      }
       btnUploadAvatar.textContent = '📁';
     };
     reader.readAsDataURL(file);
@@ -220,8 +234,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function loadSocial() {
     try {
-      const res = await fetch('/api/social');
-      const social = await res.json();
+      const fileData = await fetchGithubFile('social.js');
+      const social = fileData ? parseJsData(fileData.content, 'social') : null;
+      window.currentSocialFileSha = fileData ? fileData.sha : null;
       if (social) {
         socialGithub.value = social.github || '';
         socialBilibili.value = social.bilibili || '';
@@ -238,58 +253,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       const originalText = btnSaveSocial.textContent;
       btnSaveSocial.textContent = '保存中...';
       try {
-        await fetch('/api/save-social', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            github: socialGithub.value,
-            bilibili: socialBilibili.value,
-            qq: socialQq.value,
-            telegram: socialTelegram.value
-          })
-        });
-        btnSaveSocial.textContent = '✅ 保存成功';
-        setTimeout(() => btnSaveSocial.textContent = originalText, 2000);
+        const data = {
+          github: socialGithub.value,
+          bilibili: socialBilibili.value,
+          qq: socialQq.value,
+          telegram: socialTelegram.value
+        };
+        await saveGithubFile('social.js', stringifyJsData(data, 'social'), 'Update social links', window.currentSocialFileSha);
+        loadSocial();
       } catch (e) {
         alert('保存失败: ' + e.message);
+      } finally {
         btnSaveSocial.textContent = originalText;
       }
     });
   }
 
-  // --- Deploy Management ---
+  // --- Deploy Logic ---
   const btnDeploy = document.getElementById('btnDeploy');
   if (btnDeploy) {
     btnDeploy.addEventListener('click', async () => {
-      const originalText = btnDeploy.innerHTML;
-      btnDeploy.innerHTML = '🚀 正在打包并推送到云端...';
-      btnDeploy.style.opacity = '0.7';
-      btnDeploy.style.pointerEvents = 'none';
-      
-      try {
-        const res = await fetch('/api/deploy', { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          btnDeploy.innerHTML = '✅ 发布成功！Vercel正在更新';
-          btnDeploy.style.background = '#2ecc71';
-        } else {
-          alert('发布失败: ' + data.error);
-          btnDeploy.innerHTML = originalText;
-        }
-      } catch (e) {
-        alert('发布失败: ' + e.message);
-        btnDeploy.innerHTML = originalText;
-      } finally {
-        setTimeout(() => {
-          btnDeploy.innerHTML = originalText;
-          btnDeploy.style.opacity = '1';
-          btnDeploy.style.pointerEvents = 'auto';
-          btnDeploy.style.background = '#27ae60';
-        }, 5000);
-      }
+      alert('CMS 已经升级为 Serverless 架构，所有的保存操作均会自动同步到 GitHub 并触发 Vercel/Pages 的实时构建，不再需要手动“一键发布”啦！');
     });
   }
 
+  // Init
   loadArticles();
   loadFriends();
   loadSocial();
