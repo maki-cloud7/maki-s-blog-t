@@ -19,7 +19,7 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(247, 168, 184, 0.6); /* Semi-transparent pink */
+  background: rgba(247, 168, 184, 0.5); /* Semi-transparent sakura pink */
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
