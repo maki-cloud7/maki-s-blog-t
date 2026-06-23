@@ -230,6 +230,23 @@ body {
   width: 80%;
 }
 
+.dialogue-back-btn {
+  position: absolute;
+  bottom: 25px;
+  left: 15%;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 20;
+  display: none;
+}
+
+.dialogue-back-btn:hover {
+  color: #fff;
+  transform: scale(1.1) translateX(-3px);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
 .dialogue-indicator {
   position: absolute;
   bottom: 25px;

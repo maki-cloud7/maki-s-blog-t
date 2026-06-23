@@ -55,11 +55,23 @@ let currentText = "";
 let currentIndex = 0;
 let targetText = "";
 let currentNodeData = null;
+let galgameHistory = [];
+let currentGalgameNodeId = null;
 
-function renderGalgameNode(nodeId) {
+function renderGalgameNode(nodeId, isBack = false) {
   const node = galgameNodes[nodeId];
   if (!node) return;
+  
+  if (!isBack && currentGalgameNodeId) {
+    galgameHistory.push(currentGalgameNodeId);
+  }
+  currentGalgameNodeId = nodeId;
   currentNodeData = node;
+  
+  const backBtn = document.getElementById("dialogueBackBtn");
+  if (backBtn) {
+    backBtn.style.display = galgameHistory.length > 0 ? "block" : "none";
+  }
   
   // Update Character Image with Fade
   const charImg = document.getElementById("heroCharacter");
@@ -140,6 +152,20 @@ function showOptions(options) {
 document.addEventListener("DOMContentLoaded", () => {
   // Init Galgame
   const dialogueBox = document.getElementById("dialogueBox");
+  const backBtn = document.getElementById("dialogueBackBtn");
+  
+  if (backBtn) {
+    backBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // prevent clicking dialogue box
+      if (galgameHistory.length > 0) {
+        clearTimeout(typewriterTimeout);
+        isTyping = false;
+        const prevNodeId = galgameHistory.pop();
+        renderGalgameNode(prevNodeId, true);
+      }
+    });
+  }
+
   if (dialogueBox) {
     dialogueBox.addEventListener("click", () => {
       if (isTyping) {
