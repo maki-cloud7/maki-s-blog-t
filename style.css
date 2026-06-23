@@ -12,23 +12,18 @@
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(4px);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #8fb8ed 0%, #f7a8b8 100%);
-  border-radius: 5px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: rgba(247, 168, 184, 0.6); /* Semi-transparent pink */
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #6ba1e8 0%, #f48298 100%);
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: rgba(247, 168, 184, 0.9);
 }
 
 * {
