@@ -5,13 +5,13 @@ import { gsap } from 'gsap';
 const galgameNodes = {
   intro: {
     text: "欢迎来到我的网站，我会在这里分享各种东西，以文字为载体。",
-    characterImg: "/images/mascot_base.png",
+    characterImg: "/images/mascot_base.webp",
     nextNode: "next1",
     options: []
   },
   next1: {
     text: "往下拉可以看到最近三篇文章以及我的联系方式",
-    characterImg: "/images/mascot_explaining.png",
+    characterImg: "/images/mascot_explaining.webp",
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
@@ -19,7 +19,7 @@ const galgameNodes = {
   },
   menu: {
     text: "你想了解什么呢？",
-    characterImg: "/images/mascot_curious.png",
+    characterImg: "/images/mascot_curious.webp",
     options: [
       { label: "我的梦想", targetNode: "dream" },
       { label: "我平时喜欢做的事情", targetNode: "hobbies" },
@@ -28,7 +28,7 @@ const galgameNodes = {
   },
   hobbies: {
     text: "发呆，音乐，独立游戏，编曲，玄学，很多都还是刚刚开始。",
-    characterImg: "/images/mascot_shy.png",
+    characterImg: "/images/mascot_shy.webp",
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
@@ -36,7 +36,7 @@ const galgameNodes = {
   },
   dream: {
     text: "在未来开一家唱片店",
-    characterImg: "/images/mascot_shy.png",
+    characterImg: "/images/mascot_shy.webp",
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
@@ -44,7 +44,7 @@ const galgameNodes = {
   },
   leave: {
     text: "期待下次再见~",
-    characterImg: "/images/mascot_farewell.png",
+    characterImg: "/images/mascot_farewell.webp",
     options: []
   }
 };
