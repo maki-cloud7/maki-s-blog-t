@@ -7,7 +7,8 @@ const galgameNodes = {
     text: "欢迎来到我的网站，我会在这里分享各种东西，以文字为载体。",
     characterImg: "/images/mascot_base.webp",
     nextNode: "next1",
-    options: []
+    options: [],
+    parentNode: null
   },
   next1: {
     text: "往下拉可以看到最近三篇文章以及我的联系方式",
@@ -15,7 +16,8 @@ const galgameNodes = {
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
-    ]
+    ],
+    parentNode: "intro"
   },
   menu: {
     text: "你想了解什么呢？",
@@ -24,7 +26,8 @@ const galgameNodes = {
       { label: "我的梦想", targetNode: "dream" },
       { label: "我平时喜欢做的事情", targetNode: "hobbies" },
       { label: "离开", targetNode: "leave" }
-    ]
+    ],
+    parentNode: "next1"
   },
   hobbies: {
     text: "发呆，音乐，独立游戏，编曲，玄学，很多都还是刚刚开始。",
@@ -32,7 +35,8 @@ const galgameNodes = {
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
-    ]
+    ],
+    parentNode: "menu"
   },
   dream: {
     text: "在未来开一家唱片店",
@@ -40,12 +44,14 @@ const galgameNodes = {
     options: [
       { label: "了解更多我的信息", targetNode: "menu" },
       { label: "离开", targetNode: "leave" }
-    ]
+    ],
+    parentNode: "menu"
   },
   leave: {
     text: "期待下次再见~",
     characterImg: "/images/mascot_farewell.webp",
-    options: []
+    options: [],
+    parentNode: "menu"
   }
 };
 
@@ -55,22 +61,18 @@ let currentText = "";
 let currentIndex = 0;
 let targetText = "";
 let currentNodeData = null;
-let galgameHistory = [];
 let currentGalgameNodeId = null;
 
-function renderGalgameNode(nodeId, isBack = false) {
+function renderGalgameNode(nodeId) {
   const node = galgameNodes[nodeId];
   if (!node) return;
   
-  if (!isBack && currentGalgameNodeId) {
-    galgameHistory.push(currentGalgameNodeId);
-  }
   currentGalgameNodeId = nodeId;
   currentNodeData = node;
   
   const backBtn = document.getElementById("dialogueBackBtn");
   if (backBtn) {
-    backBtn.style.display = galgameHistory.length > 0 ? "block" : "none";
+    backBtn.style.display = node.parentNode ? "block" : "none";
   }
   
   // Update Character Image with Fade
@@ -157,11 +159,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (backBtn) {
     backBtn.addEventListener("click", (e) => {
       e.stopPropagation(); // prevent clicking dialogue box
-      if (galgameHistory.length > 0) {
+      if (currentNodeData && currentNodeData.parentNode) {
         clearTimeout(typewriterTimeout);
         isTyping = false;
-        const prevNodeId = galgameHistory.pop();
-        renderGalgameNode(prevNodeId, true);
+        renderGalgameNode(currentNodeData.parentNode);
       }
     });
   }

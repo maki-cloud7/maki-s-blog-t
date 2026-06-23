@@ -234,11 +234,12 @@ body {
   position: absolute;
   bottom: 25px;
   left: 15%;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 20;
   display: none;
+  filter: drop-shadow(1px 1px 3px rgba(0,0,0,0.5));
 }
 
 .dialogue-back-btn:hover {
