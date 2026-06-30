@@ -611,8 +611,8 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.6); /* High transparency for strong blur */
-    backdrop-filter: blur(25px); /* Heavy blur for elegant glass effect */
+    background: rgba(255, 255, 255, 0.95); /* High opacity to ensure text is always readable even if blur fails */
+    backdrop-filter: blur(25px); 
     -webkit-backdrop-filter: blur(25px);
     display: flex;
     flex-direction: column;
