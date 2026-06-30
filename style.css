@@ -582,59 +582,79 @@ body {
   .hamburger {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
     cursor: pointer;
     z-index: 1001;
     padding: 5px;
   }
   .hamburger span {
     display: block;
-    width: 25px;
-    height: 2px;
+    width: 28px;
+    height: 1.5px;
     background-color: var(--primary-color);
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .hamburger.active span:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
+    transform: translateY(8.5px) rotate(45deg);
   }
   .hamburger.active span:nth-child(2) {
     opacity: 0;
+    transform: scaleX(0);
   }
   .hamburger.active span:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
+    transform: translateY(-8.5px) rotate(-45deg);
   }
 
   .nav-links {
     position: fixed;
     top: 0;
-    right: -100%; /* Hidden off-screen */
-    width: 70%;
+    left: 0;
+    width: 100vw;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.6); /* High transparency for strong blur */
+    backdrop-filter: blur(25px); /* Heavy blur for elegant glass effect */
+    -webkit-backdrop-filter: blur(25px);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 40px;
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 45px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
     margin: 0;
     padding: 0;
-    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    box-shadow: none;
   }
   .nav-links.active {
-    right: 0;
+    opacity: 1;
+    visibility: visible;
   }
   .nav-links li {
     list-style: none;
   }
   .nav-links a {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 2.2rem;
+    font-weight: 700;
+    font-family: var(--font-serif);
+    letter-spacing: 4px;
     color: var(--text-color);
+    opacity: 0;
+    transform: translateY(25px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  .nav-links.active a {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Elegant staggered fade-in */
+  .nav-links.active li:nth-child(1) a { transition-delay: 0.1s; }
+  .nav-links.active li:nth-child(2) a { transition-delay: 0.15s; }
+  .nav-links.active li:nth-child(3) a { transition-delay: 0.2s; }
+  .nav-links.active li:nth-child(4) a { transition-delay: 0.25s; }
+
   .nav-links a.active {
     color: var(--primary-color);
   }
