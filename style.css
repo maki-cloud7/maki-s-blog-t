@@ -53,23 +53,22 @@ body {
   top: 0;
   width: 100%;
   height: var(--nav-height);
-  background: transparent; /* Transparent at the top */
-  backdrop-filter: none; /* No blur at the top */
-  -webkit-backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 50px;
   z-index: 100;
-  border-bottom: 1px solid rgba(255,255,255,0); /* Transparent border */
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  transition: all 0.3s ease;
 }
 
 .navbar.scrolled {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
 }
 
