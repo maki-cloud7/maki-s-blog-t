@@ -77,6 +77,29 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleClass: {className: 'scrolled', targets: navbar}
   });
 
+  // Mobile Hamburger Menu Injection
+  const navbar = document.querySelector('.navbar');
+  const navLinks = document.querySelector('.nav-links');
+  if (navbar && navLinks && window.innerWidth <= 768) {
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    navbar.appendChild(hamburger);
+    
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('active');
+    });
+
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('active');
+      });
+    });
+  }
+
   // Inject Social Links
   const githubLink = document.querySelector('a[aria-label="GitHub"]');
   if (githubLink && social.github !== "#") {
