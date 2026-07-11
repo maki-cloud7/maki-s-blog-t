@@ -95,6 +95,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.target.value = '';
   });
 
+  // Handle paste events for cover image
+  imageInput.addEventListener('paste', async (e) => {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+      const item = items[index];
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) continue;
+        try {
+          const url = await uploadImageToGithub(file);
+          imageInput.value = url;
+          showToast('封面粘贴上传成功');
+        } catch(err) {
+          alert('上传失败: ' + err);
+        }
+        break;
+      }
+    }
+  });
+
+  // Handle paste events for markdown content
+  mdInput.addEventListener('paste', async (e) => {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+      const item = items[index];
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) continue;
+        try {
+          const url = await uploadImageToGithub(file);
+          const imgMarkdown = `\n![粘贴的图片](${url})\n`;
+          const startPos = mdInput.selectionStart;
+          const endPos = mdInput.selectionEnd;
+          mdInput.value = mdInput.value.substring(0, startPos) + imgMarkdown + mdInput.value.substring(endPos, mdInput.value.length);
+          mdInput.selectionStart = mdInput.selectionEnd = startPos + imgMarkdown.length;
+          mdInput.dispatchEvent(new Event('input')); // update preview
+          showToast('图片粘贴插入成功');
+        } catch(err) {
+          alert('上传失败: ' + err);
+        }
+        break;
+      }
+    }
+  });
+
   // Default to today
   if (!dateInput.value) {
     const today = new Date();
