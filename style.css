@@ -725,3 +725,46 @@ body {
 .my-info-box p:last-child {
   margin-bottom: 0;
 }
+
+/* Copyable Element Styles */
+.copyable {
+  cursor: pointer;
+  background: rgba(0,0,0,0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: inline-block;
+  position: relative;
+  margin-left: 5px;
+}
+.copyable:hover {
+  background: rgba(0,0,0,0.1);
+  color: var(--primary-color);
+}
+.copyable::after {
+  content: "点击复制";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+.copyable:hover::after {
+  opacity: 1;
+  visibility: visible;
+  top: -28px;
+}
+.copyable.copied::after {
+  content: "复制成功！";
+  background: #4caf50;
+}

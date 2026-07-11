@@ -74,10 +74,10 @@
         在申请友链前，请先将我的网站加入你的网站友链列表中：
       </p>
       <div class="my-info-box" style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: left; font-size: 0.9rem; line-height: 1.6;">
-        <p><strong>名称：</strong>maki</p>
-        <p><strong>链接：</strong>https://www.maki-7.xyz/index.html</p>
-        <p><strong>描述：</strong>热爱音乐的大学生</p>
-        <p style="word-break: break-all;"><strong>头像：</strong>https://i.stardots.io/maki999/StarDots-2026071117545543908.jpg</p>
+        <p><strong>名称：</strong><span class="copyable" onclick="copyText(this, 'maki')">maki</span></p>
+        <p><strong>链接：</strong><span class="copyable" onclick="copyText(this, 'https://www.maki-7.xyz/index.html')">https://www.maki-7.xyz/index.html</span></p>
+        <p><strong>描述：</strong><span class="copyable" onclick="copyText(this, '热爱音乐的大学生')">热爱音乐的大学生</span></p>
+        <p style="word-break: break-all;"><strong>头像：</strong><span class="copyable" onclick="copyText(this, 'https://i.stardots.io/maki999/StarDots-2026071117574790544.jpg')">https://i.stardots.io/maki999/StarDots-2026071117574790544.jpg</span></p>
       </div>
       <a href="https://github.com/maki-cloud7/maki-s-blog-t/issues/new?title=%E5%8F%8B%E9%93%BE%E7%94%B3%E8%AF%B7%EF%BC%9A%5B%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E5%90%8D%E7%A7%B0%5D&body=%E5%90%8D%E7%A7%B0%EF%BC%9A%5B%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E5%90%8D%E7%A7%B0%5D%0A%E9%93%BE%E6%8E%A5%EF%BC%9A%5Bhttps%3A%2F%2F...%5D%0A%E6%8F%8F%E8%BF%B0%EF%BC%9A%5B%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%8F%8F%E8%BF%B0%5D%0A%E5%A4%B4%E5%83%8F%EF%BC%9A%5B%E5%A4%B4%E5%83%8FURL%5D" target="_blank" class="apply-friend-btn" onclick="document.getElementById('friendModal').classList.remove('active')" style="display: inline-block;">
         前往申请
@@ -87,5 +87,22 @@
 
   <script type="module" src="/main.js"></script>
   <script type="module" src="/friends-client.js"></script>
+  <script>
+    function copyText(element, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = element.innerText;
+        element.innerText = '已复制！';
+        element.style.color = '#4caf50';
+        element.classList.add('copied');
+        setTimeout(() => {
+          element.innerText = originalText;
+          element.style.color = '';
+          element.classList.remove('copied');
+        }, 1500);
+      }).catch(err => {
+        console.error('复制失败: ', err);
+      });
+    }
+  </script>
 </body>
 </html>
