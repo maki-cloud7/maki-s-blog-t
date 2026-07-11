@@ -26,9 +26,9 @@
       <section id="friends" class="section" style="margin-bottom: 0;">
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 20px;" class="gsap-fade-up">
           <h2 class="section-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;"><span>Chapter 3.</span> 命运的交点 (友链)</h2>
-          <a href="https://github.com/maki-cloud7/maki-s-blog-t/issues/new?title=%E5%8F%8B%E9%93%BE%E7%94%B3%E8%AF%B7%EF%BC%9A%5B%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E5%90%8D%E7%A7%B0%5D&body=%E5%90%8D%E7%A7%B0%EF%BC%9A%5B%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E5%90%8D%E7%A7%B0%5D%0A%E9%93%BE%E6%8E%A5%EF%BC%9A%5Bhttps%3A%2F%2F...%5D%0A%E6%8F%8F%E8%BF%B0%EF%BC%9A%5B%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%8F%8F%E8%BF%B0%5D%0A%E5%A4%B4%E5%83%8F%EF%BC%9A%5B%E5%A4%B4%E5%83%8FURL%5D" target="_blank" class="apply-friend-btn">
+          <button onclick="document.getElementById('friendModal').classList.add('active')" class="apply-friend-btn" style="border:none; cursor:pointer; font-family: inherit; font-size: inherit;">
             ✨ 缔结羁绊 (Apply)
-          </a>
+          </button>
         </div>
         <div class="friend-list gsap-fade-up" id="friendListContainer">
           <!-- Dynamic friend list -->
@@ -64,6 +64,26 @@
         </div>
     </div>
   </footer>
+
+  <!-- Modal -->
+  <div id="friendModal" class="modal-overlay" onclick="if(event.target===this) this.classList.remove('active')">
+    <div class="modal-content">
+      <span class="modal-close" onclick="document.getElementById('friendModal').classList.remove('active')">&times;</span>
+      <h3 style="margin-bottom: 15px; color: var(--primary-color, #ff8da1);">申请友链</h3>
+      <p style="margin-bottom: 15px; font-size: 0.95rem; color: #555; text-align: left;">
+        在申请友链前，请先将我的网站加入你的网站友链列表中：
+      </p>
+      <div class="my-info-box" style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: left; font-size: 0.9rem; line-height: 1.6;">
+        <p><strong>名称：</strong>maki</p>
+        <p><strong>链接：</strong>https://www.maki-7.xyz/index.html</p>
+        <p><strong>描述：</strong>热爱音乐的大学生</p>
+        <p style="word-break: break-all;"><strong>头像：</strong>https://i.stardots.io/maki999/StarDots-2026071117545543908.jpg</p>
+      </div>
+      <a href="https://github.com/maki-cloud7/maki-s-blog-t/issues/new?title=%E5%8F%8B%E9%93%BE%E7%94%B3%E8%AF%B7%EF%BC%9A%5B%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E5%90%8D%E7%A7%B0%5D&body=%E5%90%8D%E7%A7%B0%EF%BC%9A%5B%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E5%90%8D%E7%A7%B0%5D%0A%E9%93%BE%E6%8E%A5%EF%BC%9A%5Bhttps%3A%2F%2F...%5D%0A%E6%8F%8F%E8%BF%B0%EF%BC%9A%5B%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%8F%8F%E8%BF%B0%5D%0A%E5%A4%B4%E5%83%8F%EF%BC%9A%5B%E5%A4%B4%E5%83%8FURL%5D" target="_blank" class="apply-friend-btn" onclick="document.getElementById('friendModal').classList.remove('active')" style="display: inline-block;">
+        前往申请
+      </a>
+    </div>
+  </div>
 
   <script type="module" src="/main.js"></script>
   <script type="module" src="/friends-client.js"></script>
