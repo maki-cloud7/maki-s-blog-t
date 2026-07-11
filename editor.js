@@ -25,19 +25,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   const coverFileInput = document.getElementById('coverFileInput');
   const btnUploadContentImage = document.getElementById('btnUploadContentImage');
   const contentFileInput = document.getElementById('contentFileInput');
+  const btnUploadContentFile = document.getElementById('btnUploadContentFile');
+  const attachmentFileInput = document.getElementById('attachmentFileInput');
 
-  // Upload logic using Base64 directly to GitHub
-  async function uploadImageToGithub(file) {
+  // Generic upload logic
+  async function uploadFileToGithub(file, isImage = true) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          showToast('上传至 GitHub...');
+          showToast(`正在上传 ${file.name}...`);
           const base64Data = e.target.result.split(',')[1];
-          const filename = Date.now() + '_' + file.name;
+          const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+          const filename = Date.now() + '_' + (cleanName || 'file');
+          const folder = isImage ? 'images' : 'files';
           const token = localStorage.getItem('github_token');
           
-          const res = await fetch(`https://api.github.com/repos/maki-cloud7/maki-s-blog-t/contents/public/images/${filename}`, {
+          const res = await fetch(`https://api.github.com/repos/maki-cloud7/maki-s-blog-t/contents/public/${folder}/${filename}`, {
             method: 'PUT',
             headers: {
               'Authorization': `token ${token}`,
@@ -45,14 +49,14 @@ document.addEventListener('DOMContentLoaded', async () => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              message: `Upload image ${filename}`,
-              content: base64Data, // Already base64 encoded by FileReader DataURL
+              message: `Upload ${isImage ? 'image' : 'file'} ${filename}`,
+              content: base64Data,
               branch: 'main'
             })
           });
           
           if (!res.ok) throw new Error('Upload failed');
-          resolve(`/images/${filename}`);
+          resolve(`/${folder}/${filename}`);
         } catch (err) {
           reject(err.message);
         }
@@ -62,12 +66,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  function insertToMdInput(markdown) {
+    const startPos = mdInput.selectionStart;
+    const endPos = mdInput.selectionEnd;
+    mdInput.value = mdInput.value.substring(0, startPos) + markdown + mdInput.value.substring(endPos, mdInput.value.length);
+    mdInput.selectionStart = mdInput.selectionEnd = startPos + markdown.length;
+    mdInput.dispatchEvent(new Event('input')); // update preview
+  }
+
   // Cover image upload
   btnUploadCover.addEventListener('click', () => coverFileInput.click());
   coverFileInput.addEventListener('change', async (e) => {
     if (!e.target.files.length) return;
     try {
-      const url = await uploadImageToGithub(e.target.files[0]);
+      const url = await uploadFileToGithub(e.target.files[0], true);
       imageInput.value = url;
       showToast('封面上传成功');
     } catch(err) {
@@ -81,19 +93,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   contentFileInput.addEventListener('change', async (e) => {
     if (!e.target.files.length) return;
     try {
-      const url = await uploadImageToGithub(e.target.files[0]);
-      const imgMarkdown = `\n![图片描述](${url})\n`;
-      // Insert at cursor
-      const startPos = mdInput.selectionStart;
-      const endPos = mdInput.selectionEnd;
-      mdInput.value = mdInput.value.substring(0, startPos) + imgMarkdown + mdInput.value.substring(endPos, mdInput.value.length);
-      mdInput.dispatchEvent(new Event('input')); // update preview
+      const url = await uploadFileToGithub(e.target.files[0], true);
+      insertToMdInput(`\n![图片描述](${url})\n`);
       showToast('图片插入成功');
     } catch(err) {
       alert('上传失败: ' + err);
     }
     e.target.value = '';
   });
+
+  // Content attachment file upload
+  if (btnUploadContentFile) {
+    btnUploadContentFile.addEventListener('click', () => attachmentFileInput.click());
+    attachmentFileInput.addEventListener('change', async (e) => {
+      if (!e.target.files.length) return;
+      try {
+        const file = e.target.files[0];
+        const isImage = file.type.startsWith('image/');
+        const url = await uploadFileToGithub(file, isImage);
+        const markdown = isImage ? `\n![${file.name}](${url})\n` : `\n[下载文件：${file.name}](${url})\n`;
+        insertToMdInput(markdown);
+        showToast('附件插入成功');
+      } catch(err) {
+        alert('上传失败: ' + err);
+      }
+      e.target.value = '';
+    });
+  }
 
   // Handle paste events for cover image
   imageInput.addEventListener('paste', async (e) => {
@@ -105,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const file = item.getAsFile();
         if (!file) continue;
         try {
-          const url = await uploadImageToGithub(file);
+          const url = await uploadFileToGithub(file, true);
           imageInput.value = url;
           showToast('封面粘贴上传成功');
         } catch(err) {
@@ -116,28 +142,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Handle paste events for markdown content
+  // Handle paste events for markdown content (images and files)
   mdInput.addEventListener('paste', async (e) => {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let index in items) {
       const item = items[index];
-      if (item.kind === 'file' && item.type.startsWith('image/')) {
+      if (item.kind === 'file') {
         e.preventDefault();
         const file = item.getAsFile();
         if (!file) continue;
         try {
-          const url = await uploadImageToGithub(file);
-          const imgMarkdown = `\n![粘贴的图片](${url})\n`;
-          const startPos = mdInput.selectionStart;
-          const endPos = mdInput.selectionEnd;
-          mdInput.value = mdInput.value.substring(0, startPos) + imgMarkdown + mdInput.value.substring(endPos, mdInput.value.length);
-          mdInput.selectionStart = mdInput.selectionEnd = startPos + imgMarkdown.length;
-          mdInput.dispatchEvent(new Event('input')); // update preview
-          showToast('图片粘贴插入成功');
+          const isImage = file.type.startsWith('image/');
+          const url = await uploadFileToGithub(file, isImage);
+          const markdown = isImage ? `\n![粘贴的图片](${url})\n` : `\n[下载文件：${file.name}](${url})\n`;
+          insertToMdInput(markdown);
+          showToast(isImage ? '图片粘贴插入成功' : '文件粘贴插入成功');
         } catch(err) {
           alert('上传失败: ' + err);
         }
-        break;
+        break; // Process one file per paste
+      }
+    }
+  });
+
+  // Handle Drag and Drop for Markdown Editor
+  mdInput.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    mdInput.style.backgroundColor = 'rgba(0,0,0,0.02)';
+  });
+  mdInput.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    mdInput.style.backgroundColor = '';
+  });
+  mdInput.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    mdInput.style.backgroundColor = '';
+    const files = e.dataTransfer.files;
+    if (!files.length) return;
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const isImage = file.type.startsWith('image/');
+        const url = await uploadFileToGithub(file, isImage);
+        const markdown = isImage ? `\n![${file.name}](${url})\n` : `\n[下载文件：${file.name}](${url})\n`;
+        insertToMdInput(markdown);
+        showToast(isImage ? '图片拖拽插入成功' : '文件拖拽插入成功');
+      } catch(err) {
+        alert('上传失败: ' + err);
       }
     }
   });
