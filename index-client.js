@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const container = document.getElementById("recentArticlesContainer");
   if (container) {
-    const recentArticles = articles.slice(0, 2);
+    const recentArticles = articles.slice(0, 3);
     
     container.innerHTML = recentArticles.map(article => `
       <article class="card article-card gsap-fade-up dynamic-fade-up">
