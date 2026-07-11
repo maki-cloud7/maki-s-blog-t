@@ -1,5 +1,16 @@
 export const articles = [
   {
+    "id": "1783765629933",
+    "title": "TRAE 创造力大赛",
+    "date": "2026-07-11",
+    "tags": [
+      "VibeCoding"
+    ],
+    "summary": "可能要石沉大海了",
+    "url": "/post.html?id=1783765629933",
+    "image": "/images/1783765507880_image.png"
+  },
+  {
     "id": "1782394395826",
     "title": "高考出分的日子",
     "date": "2026-06-25",
