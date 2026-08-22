@@ -10,9 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTag = 'all';
   let currentSearch = '';
 
+  const isLoggedIn = !!localStorage.getItem('github_token');
+  const visibleArticles = articles.filter(article => !article.isPrivate || isLoggedIn);
+
   // Extract all unique tags
   const allTags = new Set();
-  articles.forEach(article => {
+  visibleArticles.forEach(article => {
     article.tags.forEach(tag => allTags.add(tag));
   });
 
@@ -50,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderTimeline() {
     archiveTimeline.innerHTML = '';
 
-    const filteredArticles = articles.filter(article => {
+    const filteredArticles = visibleArticles.filter(article => {
       const matchTag = currentTag === 'all' || article.tags.includes(currentTag);
       const matchSearch = currentSearch === '' || 
                           article.title.toLowerCase().includes(currentSearch) || 
@@ -99,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="item-img"><img src="${article.image}" alt="封面" onerror="this.src='https://picsum.photos/400/300?anime'"></div>
           <div class="item-content">
             <div class="item-date">${article.date}</div>
-            <h3 class="item-title">${article.title}</h3>
+            <h3 class="item-title">${article.isPrivate ? '<span style="color: #e74c3c; font-size: 0.85em; margin-right: 6px;">🔒 [私密]</span>' : ''}${article.title}</h3>
             <p class="item-summary">${article.summary}</p>
             <div class="item-tags">${tagsHtml}</div>
           </div>

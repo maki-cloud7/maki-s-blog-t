@@ -19,10 +19,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       articleList.innerHTML = articles.map(article => `
         <tr>
-          <td class="title"><a href="${article.url}" target="_blank" style="color: inherit; text-decoration: none;">${article.title}</a></td>
+          <td class="title">
+            <a href="${article.url}" target="_blank" style="color: inherit; text-decoration: none;">${article.title}</a>
+            ${article.isPrivate ? '<span style="display: inline-block; padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; background: #fff3cd; color: #d9534f; margin-left: 8px; font-weight: bold; border: 1px solid #ffeeba;">🔒 私密</span>' : ''}
+          </td>
           <td class="date">${article.date}</td>
           <td class="actions">
             <div class="action-btns">
+              <button class="btn-toggle-private btn-delete" style="color: ${article.isPrivate ? '#e67e22' : '#2980b9'};" data-id="${article.id}" title="${article.isPrivate ? '点击设为公开' : '点击设为私密'}">${article.isPrivate ? '设为公开' : '设为私密'}</button>
               <a href="/editor.html?id=${article.id}" class="btn-edit">编辑</a>
               <button class="btn-delete" data-id="${article.id}">删除</button>
             </div>
@@ -30,8 +34,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         </tr>
       `).join('');
 
+      // Add toggle private listeners
+      document.querySelectorAll('.btn-toggle-private').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.getAttribute('data-id');
+          await toggleArticlePrivacy(id);
+        });
+      });
+
       // Add delete listeners
-      document.querySelectorAll('.btn-delete').forEach(btn => {
+      document.querySelectorAll('.btn-delete:not(.btn-toggle-private)').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = e.target.getAttribute('data-id');
           if (confirm('确定要彻底删除这篇文章吗？（操作不可逆，将直接同步至 GitHub）')) {
@@ -43,6 +55,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (e) {
       console.error(e);
       articleList.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; color: red;">加载失败，请检查您的 GitHub Token 是否拥有 repo 权限。</td></tr>';
+    }
+  }
+
+  async function toggleArticlePrivacy(id) {
+    try {
+      const fileData = await fetchGithubFile('articles.js');
+      let articles = fileData ? parseJsData(fileData.content, 'articles') : [];
+      const article = articles.find(a => a.id.toString() === id.toString());
+      if (!article) return alert('未找到该文章');
+
+      const nextStatus = !article.isPrivate;
+      article.isPrivate = nextStatus;
+
+      await saveGithubFile('articles.js', stringifyJsData(articles, 'articles'), `Set article ${id} privacy to ${nextStatus}`, fileData ? fileData.sha : null);
+      loadArticles();
+    } catch (e) {
+      console.error(e);
+      alert('修改状态失败: ' + e.message);
     }
   }
 

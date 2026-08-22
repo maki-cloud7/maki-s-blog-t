@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Find the article metadata
   const articleMeta = articles.find(a => a.id.toString() === articleId || a.slug === articleId);
+  const isLoggedIn = !!localStorage.getItem('github_token');
 
   if (!articleMeta) {
     document.getElementById('postTitle').textContent = '未找到该文章';
@@ -15,9 +16,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Handle private article for non-logged-in visitors
+  if (articleMeta.isPrivate && !isLoggedIn) {
+    document.title = '私密文章 - 夏色绘卷';
+    document.getElementById('postTitle').textContent = '🔒 私密文章';
+    document.getElementById('postMeta').innerHTML = '';
+    const tocWrapper = document.querySelector('.article-toc-wrapper');
+    if (tocWrapper) tocWrapper.style.display = 'none';
+    
+    document.getElementById('postBody').innerHTML = `
+      <div style="text-align: center; padding: 60px 20px; background: rgba(255, 255, 255, 0.7); border-radius: 12px; border: 1px dashed rgba(0,0,0,0.1); margin-top: 30px;">
+        <div style="font-size: 3rem; margin-bottom: 15px;">🔒</div>
+        <h3 style="font-family: var(--font-serif); color: #2c3e50; margin-bottom: 10px;">这是一篇私密文章</h3>
+        <p style="color: #7f8c8d; font-size: 0.95rem; margin-bottom: 25px;">该文章已被作者设为私密状态，仅博主登录后方可阅读。</p>
+        <a href="/admin.html" class="btn-primary" style="display: inline-block; padding: 10px 24px; border-radius: 20px; background: var(--primary-color); color: white; text-decoration: none; font-weight: 500;">前往管理后台验证身份</a>
+      </div>
+    `;
+    gsap.to('#postContainer', { opacity: 1, duration: 0.8, ease: "power2.out" });
+    return;
+  }
+
   // Set meta data
-  document.title = `${articleMeta.title} - 夏色绘卷`;
-  document.getElementById('postTitle').textContent = articleMeta.title;
+  document.title = `${articleMeta.isPrivate ? '[私密] ' : ''}${articleMeta.title} - 夏色绘卷`;
+  document.getElementById('postTitle').innerHTML = `${articleMeta.isPrivate ? '<span style="color: #e74c3c; font-size: 0.8em; margin-right: 8px;">🔒 [私密]</span>' : ''}${articleMeta.title}`;
   
   const dateParts = articleMeta.date.split('-');
   const formattedDate = `${dateParts[0]}年${parseInt(dateParts[1])}月${parseInt(dateParts[2])}日`;

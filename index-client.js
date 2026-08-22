@@ -184,7 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const container = document.getElementById("recentArticlesContainer");
   if (container) {
-    const recentArticles = articles.slice(0, 3);
+    const isLoggedIn = !!localStorage.getItem('github_token');
+    const visibleArticles = articles.filter(a => !a.isPrivate || isLoggedIn);
+    const recentArticles = visibleArticles.slice(0, 3);
     
     container.innerHTML = recentArticles.map(article => `
       <article class="card article-card gsap-fade-up dynamic-fade-up">
@@ -194,7 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
           </a>
         </div>
         <div class="card-content">
-          <h3><a href="${article.url}" style="color: inherit; text-decoration: none;">${article.title}</a></h3>
+          <h3>
+            <a href="${article.url}" style="color: inherit; text-decoration: none;">
+              ${article.isPrivate ? '<span style="color: #e74c3c; font-size: 0.9em; margin-right: 6px;">🔒 [私密]</span>' : ''}${article.title}
+            </a>
+          </h3>
           <p>${article.summary || '这是一段被隐藏在时光里的文字...'}</p>
           <span class="date">${article.date}</span>
         </div>

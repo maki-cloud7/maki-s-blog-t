@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tagsInput = document.getElementById('tagsInput');
   const summaryInput = document.getElementById('summaryInput');
   const imageInput = document.getElementById('imageInput');
+  const privateCheckbox = document.getElementById('privateCheckbox');
   const mdInput = document.getElementById('mdInput');
   const previewPane = document.getElementById('previewPane');
   const btnSave = document.getElementById('btnSave');
@@ -238,6 +239,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tagsInput.value = meta.tags.join(', ');
         summaryInput.value = meta.summary || '';
         imageInput.value = meta.image || '';
+        if (privateCheckbox) privateCheckbox.checked = !!meta.isPrivate;
       }
 
       // 2. Fetch markdown content
@@ -270,6 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!title) return alert('标题不能为空！');
 
     const tags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
+    const isPrivate = privateCheckbox ? privateCheckbox.checked : false;
     
     const originalBtnText = btnSave.textContent;
     btnSave.textContent = '保存并同步至 GitHub...';
@@ -300,7 +303,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           tags: tags.length > 0 ? tags : ['随笔'],
           summary: summaryInput.value.trim(),
           url: `/post.html?id=${articleId}`,
-          image: imageInput.value.trim() || '/article1.jpg'
+          image: imageInput.value.trim() || '/article1.jpg',
+          isPrivate
         });
       } else {
         const index = articles.findIndex(a => a.id.toString() === articleId.toString());
@@ -311,7 +315,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             date: dateInput.value,
             tags: tags.length > 0 ? tags : ['随笔'],
             summary: summaryInput.value.trim(),
-            image: imageInput.value.trim() || articles[index].image
+            image: imageInput.value.trim() || articles[index].image,
+            isPrivate
           };
         }
       }
