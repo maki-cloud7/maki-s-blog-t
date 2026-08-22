@@ -19,7 +19,8 @@ export const articles = [
     ],
     "summary": "五味杂陈的感觉",
     "url": "/post.html?id=1782394395826",
-    "image": "/images/1782394383295_突然特别怀念高中每一个抬头的瞬间_1_孤舟_来自小红书网页版.jpg"
+    "image": "/images/1782394383295_突然特别怀念高中每一个抬头的瞬间_1_孤舟_来自小红书网页版.jpg",
+    "isPrivate": true
   },
   {
     "id": "1782102000762",
