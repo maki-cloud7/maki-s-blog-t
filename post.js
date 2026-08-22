@@ -38,13 +38,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Set meta data
   document.title = `${articleMeta.isPrivate ? '[私密] ' : ''}${articleMeta.title} - 夏色绘卷`;
-  document.getElementById('postTitle').innerHTML = `${articleMeta.isPrivate ? '<span style="color: #e74c3c; font-size: 0.8em; margin-right: 8px;">🔒 [私密]</span>' : ''}${articleMeta.title}`;
+  document.getElementById('postTitle').innerHTML = `${articleMeta.isPrivate ? '<span style="display: inline-block; padding: 2px 10px; font-size: 0.75em; border-radius: 6px; background: #fff3cd; color: #d63031; border: 1px solid #ffeeba; vertical-align: middle; margin-right: 10px;">🔒 私密</span>' : ''}${articleMeta.title}`;
   
   const dateParts = articleMeta.date.split('-');
   const formattedDate = `${dateParts[0]}年${parseInt(dateParts[1])}月${parseInt(dateParts[2])}日`;
   const tagsText = articleMeta.tags.join(' ');
   
-  document.getElementById('postMeta').innerHTML = `<span>${formattedDate} &nbsp;/&nbsp; ${tagsText}</span>`;
+  document.getElementById('postMeta').innerHTML = `
+    <span>${formattedDate} &nbsp;/&nbsp; ${tagsText}</span>
+    ${articleMeta.isPrivate ? '<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 0.8rem; background: #fff3cd; color: #d63031; border: 1px solid #ffeeba; border-radius: 12px; font-weight: bold; margin-left: 8px;">🔒 仅博主可见</span>' : ''}
+  `;
   document.getElementById('postImage').src = articleMeta.image;
 
   try {
@@ -56,7 +59,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Render Markdown to HTML
     const htmlContent = marked.parse(markdownText);
     const postBody = document.getElementById('postBody');
-    postBody.innerHTML = htmlContent;
+    
+    const privateBannerHtml = articleMeta.isPrivate ? `
+      <div style="background: rgba(231, 76, 60, 0.06); border: 1px dashed rgba(231, 76, 60, 0.35); border-radius: 8px; padding: 12px 18px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span style="color: #c0392b; font-size: 0.9rem; font-weight: 500;">🔒 <strong>私密模式</strong>：本文当前处于私密状态，仅您（博主）登录后可见。</span>
+        <a href="/editor.html?id=${articleMeta.id}" style="color: var(--primary-color); font-size: 0.85rem; font-weight: 600; text-decoration: underline;">✏️ 编辑或设为公开</a>
+      </div>
+    ` : '';
+    
+    postBody.innerHTML = privateBannerHtml + htmlContent;
 
     // Generate TOC
     generateTOC(postBody);

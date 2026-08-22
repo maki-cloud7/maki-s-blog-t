@@ -99,10 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
         a.className = 'timeline-item';
         const tagsHtml = article.tags.map(t => `<span class="item-tag">${t}</span>`).join('');
         a.innerHTML = `
-          <div class="item-img"><img src="${article.image}" alt="封面" onerror="this.src='https://picsum.photos/400/300?anime'"></div>
+          <div class="item-img" style="position: relative;">
+            <img src="${article.image}" alt="封面" onerror="this.src='https://picsum.photos/400/300?anime'">
+            ${article.isPrivate ? '<span style="position: absolute; top: 8px; left: 8px; background: rgba(231, 76, 60, 0.92); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; backdrop-filter: blur(4px);">🔒 私密</span>' : ''}
+          </div>
           <div class="item-content">
             <div class="item-date">${article.date}</div>
-            <h3 class="item-title">${article.isPrivate ? '<span style="color: #e74c3c; font-size: 0.85em; margin-right: 6px;">🔒 [私密]</span>' : ''}${article.title}</h3>
+            <h3 class="item-title">
+              ${article.isPrivate ? '<span style="display: inline-block; padding: 1px 6px; font-size: 0.75em; border-radius: 4px; background: #fff3cd; color: #d63031; border: 1px solid #ffeeba; vertical-align: middle; margin-right: 6px;">🔒 私密</span>' : ''}${article.title}
+            </h3>
             <p class="item-summary">${article.summary}</p>
             <div class="item-tags">${tagsHtml}</div>
           </div>

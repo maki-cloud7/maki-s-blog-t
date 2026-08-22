@@ -190,15 +190,16 @@ document.addEventListener("DOMContentLoaded", () => {
     
     container.innerHTML = recentArticles.map(article => `
       <article class="card article-card gsap-fade-up dynamic-fade-up">
-        <div class="card-img">
+        <div class="card-img" style="position: relative;">
           <a href="${article.url}">
             <img src="${article.image}" alt="文章插图" onerror="this.src='https://picsum.photos/800/400?school'">
           </a>
+          ${article.isPrivate ? '<span style="position: absolute; top: 12px; right: 12px; background: rgba(231, 76, 60, 0.92); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">🔒 私密</span>' : ''}
         </div>
         <div class="card-content">
           <h3>
             <a href="${article.url}" style="color: inherit; text-decoration: none;">
-              ${article.isPrivate ? '<span style="color: #e74c3c; font-size: 0.9em; margin-right: 6px;">🔒 [私密]</span>' : ''}${article.title}
+              ${article.isPrivate ? '<span style="display: inline-block; padding: 1px 6px; font-size: 0.75em; border-radius: 4px; background: #fff3cd; color: #d63031; border: 1px solid #ffeeba; vertical-align: middle; margin-right: 6px;">🔒 私密</span>' : ''}${article.title}
             </a>
           </h3>
           <p>${article.summary || '这是一段被隐藏在时光里的文字...'}</p>
